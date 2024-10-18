@@ -12,16 +12,19 @@ Esta aplicación es una arquitectura de microservicios que utiliza React para el
 ## Instalación y Configuración
 Sigue los pasos a continuación para poner en marcha el proyecto localmente:
 
-## 1. Clonar el Repositorio
+1. Clonar el Repositorio
 
 gh repo clone BrayanAvalosV/gestion-hcoquimbo
 cd gestion-hcoquimbo
-## 2. Construir y Ejecutar los Servicios con Docker
+
+
+2. Construir y Ejecutar los Servicios con Docker
 
 docker-compose up --build
 Esto descargará las imágenes de Docker necesarias, construirá los contenedores de React, Flask y PostgreSQL, y luego levantará los servicios.
 
-## 3. Acceso a la Aplicación
+
+3. Acceso a la Aplicación
 
 El frontend estará disponible en http://localhost:3000.
 El backend estará disponible en http://localhost:5000.
@@ -30,13 +33,15 @@ Usuario: postgres
 Contraseña: password
 Base de datos: mydatabase
 
-## 4. Comandos Útiles
+
+4. Comandos Útiles
 Para detener los contenedores sin eliminar los volúmenes:
 
 docker-compose down
 Para reconstruir las imágenes después de cambios en el código:
 
 docker-compose up --build
+
 
 ## Estructura del Proyecto
 
