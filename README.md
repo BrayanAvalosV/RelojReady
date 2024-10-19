@@ -3,14 +3,19 @@
 ## Descripción
 Esta aplicación es una arquitectura de microservicios que utiliza React para el frontend, Flask para el backend y PostgreSQL como base de datos para la gestión de usuarios y MongoDB para almacenar datos correspondientes a los registros de cambios en los archivos. La aplicación está diseñada para ser desplegada de manera dockerizada, permitiendo fácil despliegue y administración.
 
-## Tecnologías Utilizadas
-*Frontend:* React + Nginx
-*Backend:* Flask (Python)
-*Base de Datos:* PostgreSQL y MongoDB
-*Orquestación:* Docker y Docker Compose
+## Tecnologías Utilizadas:
+
+- *Frontend:* React + Nginx.
+- *Backend:* Flask (Python).
+- *Base de Datos:* PostgreSQL y MongoDB.
+- *Orquestación:* Docker y Docker Compose.
+  
 ## Requisitos Previos
+
 *Docker:* Asegúrate de tener Docker y Docker Compose instalados en tu máquina. Puedes instalar Docker siguiendo las instrucciones en docker.com.
+
 ## Instalación y Configuración
+
 Sigue los pasos a continuación para poner en marcha el proyecto localmente:
 
   **1. Clonar el Repositorio**
@@ -27,6 +32,7 @@ Esto descargará las imágenes de Docker necesarias, construirá los contenedore
 
   **3. Acceso a la Aplicación**
 
+
 El frontend estará disponible en http://localhost:3000.
 El backend estará disponible en http://localhost:5000.
 PostgreSQL estará corriendo en el puerto 5432, con las siguientes credenciales por defecto:
@@ -36,6 +42,7 @@ Base de datos: mydatabase
 
 
   **4. Comandos Útiles**
+
 Para detener los contenedores sin eliminar los volúmenes:
 ```
 docker-compose down
