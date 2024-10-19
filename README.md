@@ -13,19 +13,19 @@ Esta aplicación es una arquitectura de microservicios que utiliza React para el
 ## Instalación y Configuración
 Sigue los pasos a continuación para poner en marcha el proyecto localmente:
 
-1. Clonar el Repositorio
-
-  gh repo clone BrayanAvalosV/gestion-hcoquimbo
+  **1. Clonar el Repositorio**
+```
+gh repo clone BrayanAvalosV/gestion-hcoquimbo
 cd gestion-hcoquimbo  
+```
 
-
-2. Construir y Ejecutar los Servicios con Docker
-
+  **2. Construir y Ejecutar los Servicios con Docker**
+```
 docker-compose up --build
+```
 Esto descargará las imágenes de Docker necesarias, construirá los contenedores de React, Flask y PostgreSQL, y luego levantará los servicios.
 
-
-3. Acceso a la Aplicación
+  **3. Acceso a la Aplicación**
 
 El frontend estará disponible en http://localhost:3000.
 El backend estará disponible en http://localhost:5000.
@@ -35,17 +35,18 @@ Contraseña: password
 Base de datos: mydatabase
 
 
-4. Comandos Útiles
+  **4. Comandos Útiles**
 Para detener los contenedores sin eliminar los volúmenes:
-
+```
 docker-compose down
+```
 Para reconstruir las imágenes después de cambios en el código:
-
+```
 docker-compose up --build
-
+```
 
 ## Estructura del Proyecto
-
+```
 /myproject
 │
 ├── /frontend        # Código fuente del frontend (React)
@@ -61,22 +62,24 @@ docker-compose up --build
 │
 ├── docker-compose.yml   # Archivo de orquestación para Docker
 └── README.md            # Documentación del proyecto
-
+```
 ## Desarrollo
 ### Frontend (React)
 Para trabajar en el frontend, navega a la carpeta /frontend y ejecuta los comandos de npm. Asegúrate de tener Node.js y npm instalados.
-
+```
 cd frontend
 npm install
 npm start
+```
 Esto lanzará el frontend en localhost:3000.
 
 ### Backend (Flask)
 Para trabajar en el backend, navega a la carpeta /backend. Asegúrate de tener Python y las dependencias instaladas.
-
+```
 cd backend
 pip install -r requirements.txt
 flask run
+```
 Esto lanzará el backend en localhost:5000.
 
 ## Contribuir
