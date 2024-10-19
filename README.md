@@ -1,11 +1,12 @@
+
 # Proyecto de Aplicación Web con React, Flask y PostgreSQL
 ## Descripción
-Esta aplicación es una arquitectura de microservicios que utiliza React para el frontend, Flask para el backend y PostgreSQL como base de datos. La aplicación está diseñada para ser desplegada de manera dockerizada, permitiendo fácil despliegue y administración.
+Esta aplicación es una arquitectura de microservicios que utiliza React para el frontend, Flask para el backend y PostgreSQL como base de datos para la gestión de usuarios y MongoDB para almacenar datos correspondientes a los registros de cambios en los archivos. La aplicación está diseñada para ser desplegada de manera dockerizada, permitiendo fácil despliegue y administración.
 
 ## Tecnologías Utilizadas
 *Frontend:* React + Nginx
 *Backend:* Flask (Python)
-*Base de Datos:* PostgreSQL
+*Base de Datos:* PostgreSQL y MongoDB
 *Orquestación:* Docker y Docker Compose
 ## Requisitos Previos
 *Docker:* Asegúrate de tener Docker y Docker Compose instalados en tu máquina. Puedes instalar Docker siguiendo las instrucciones en docker.com.
@@ -14,8 +15,8 @@ Sigue los pasos a continuación para poner en marcha el proyecto localmente:
 
 1. Clonar el Repositorio
 
-gh repo clone BrayanAvalosV/gestion-hcoquimbo
-cd gestion-hcoquimbo
+  gh repo clone BrayanAvalosV/gestion-hcoquimbo
+cd gestion-hcoquimbo  
 
 
 2. Construir y Ejecutar los Servicios con Docker
