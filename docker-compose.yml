@@ -1,40 +1,52 @@
-version: '3.8'
+version: "3.8"
 
 services:
-  # Servicio de React (Frontend)
   frontend:
     build:
-      context: ./frontend
-      dockerfile: Dockerfile
+      context: ./Frontend
     ports:
       - "3000:80"
-    depends_on:
-      - backend
+    networks:
+      - app-network
 
-  # Servicio de Flask (Backend)
   backend:
     build:
-      context: ./backend
-      dockerfile: Dockerfile
-    environment:
-      - FLASK_ENV=development
-      - DATABASE_URL=postgresql://postgres:password@db:5432/mydatabase
+      context: ./Backend
     ports:
       - "5000:5000"
-    depends_on:
-      - db
-
-  # Servicio de PostgreSQL (Base de Datos)
-  db:
-    image: postgres:14-alpine
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: mydatabase
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=adminpassword
+      - POSTGRES_DB=user_db
+      - MONGO_URI=mongodb://mongo:27017/logs
+    depends_on:
+      - postgres
+      - mongo
+    networks:
+      - app-network
+
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: adminpassword
+      POSTGRES_DB: user_db
     volumes:
-      - postgres-data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+  mongo:
+    image: mongo:5.0
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
 
 volumes:
-  postgres-data:
+  postgres_data:
+  mongo_data:
