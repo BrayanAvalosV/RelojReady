@@ -1,29 +1,23 @@
-# Etapa de construcción
-FROM node:18-alpine as build
+FROM node:18-alpine
 
+# Establecer el directorio de trabajo
 WORKDIR /app
 
-# Copiar los archivos package.json y package-lock.json para instalar las dependencias
+# Copiar archivos
 COPY package.json package-lock.json ./
 
-# Instalar las dependencias
+# Instalar dependencias
 RUN npm install
+RUN npm install axios bootstrap react-router-dom react-bootstrap react-icons formik yup react-icons
 
-# Copiar el resto de la aplicación React al contenedor
+# Copiar el resto del código
 COPY . .
 
-# Construir la aplicación
-RUN npm run build
+# Habilitar polling para cambios en archivos
+ENV WATCHPACK_POLLING=true
 
-# Etapa de producción
-FROM nginx:alpine
+# Exponer el puerto (el puerto que usa React normalmente es 3000)
+EXPOSE 3000
 
-# Copiar la build de React desde la etapa de construcción
-COPY --from=build /app/build /usr/share/nginx/html
-
-# Copiar archivo de configuración de Nginx
-COPY nginx.conf /etc/nginx/nginx.conf
-
-EXPOSE 80
-
-CMD ["nginx", "-g", "daemon off;"]
+# Comando para iniciar la aplicación
+CMD ["npm", "run", "start-watch"]
