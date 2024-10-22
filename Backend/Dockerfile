@@ -1,27 +1,20 @@
-# Usar una imagen ligera de Python
+# Utilizar imagen base de Python
 FROM python:3.10-slim
 
-# Instalar dependencias del sistema necesarias para PostgreSQL y psycopg2
-RUN apt-get update && apt-get install -y \
-    libpq-dev gcc \
-    && rm -rf /var/lib/apt/lists/*
-
-# Establecer el directorio de trabajo dentro del contenedor
+# Establecer el directorio de trabajo
 WORKDIR /app
 
-# Copiar el archivo de requisitos del proyecto
+# Copiar los archivos requirements para instalar dependencias
 COPY requirements.txt .
 
-# Actualizar pip y luego instalar las dependencias de Python
-RUN pip install --upgrade pip
+# Instalar las dependencias
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copiar el código de la aplicación
+# Copiar el resto del código de la aplicación Flask
 COPY . .
 
-# Exponer el puerto donde se ejecutará la aplicación
+# Exponer el puerto 5000 para Flask
 EXPOSE 5000
 
-# Comando para ejecutar la aplicación
-CMD ["gunicorn", "-b", "0.0.0.0:5000", "app:app"]
-
+# Comando para ejecutar la aplicación Flask
+CMD ["flask", "run", "--host=0.0.0.0"]
