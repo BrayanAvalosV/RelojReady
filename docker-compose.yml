@@ -23,3 +23,5 @@ services:
       - ./Frontend:/app
     environment:
       - CHOKIDAR_USEPOLLING=true
+    stdin_open: true
+    tty: true

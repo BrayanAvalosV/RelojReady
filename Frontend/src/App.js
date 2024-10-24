@@ -1,27 +1,30 @@
-import React, { useState } from 'react';
+// src/App.js
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Login from './pages/Login';
+import Register from './components/Register';
+import AdminPanel from './pages/AdminPanel'; // Importamos el nuevo componente
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
-function Login() {
-  const [rut, setRut] = useState('');
-  const [password, setPassword] = useState('');
-
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    const response = await fetch('http://localhost:5000/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ rut, password })
-    });
-    const data = await response.json();
-    console.log(data);
-  };
-
-  return (
-    <form onSubmit={handleLogin}>
-      <input type="text" placeholder="RUT" value={rut} onChange={(e) => setRut(e.target.value)} />
-      <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
-      <button type="submit">Login</button>
-    </form>
-  );
+function App() {
+    return (
+        <Router>
+            <div className="d-flex flex-column min-vh-100">
+                <div className="flex-fill"> {/* Este div permite que el contenido crezca */}
+                    <Routes>
+                        
+                        <Route path="/" element={<Login />} />
+                        <Route path="/register" element={<Register />} />
+                        <Route path="/admin-panel" element={<AdminPanel />} />
+                        
+                        
+                        {/* Agrega más rutas aquí */}
+                    </Routes>
+                </div>
+            </div>
+        </Router>
+    );
 }
 
-export default Login;
+export default App;
