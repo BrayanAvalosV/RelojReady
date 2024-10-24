@@ -1,21 +1,27 @@
-# Usar una imagen base de Python
-FROM python:3.10-slim
+# Dockerfile
 
-# Establecer el directorio de trabajo en el contenedor
+FROM python:3.9-slim
+
 WORKDIR /app
 
-# Copiar los archivos de requerimientos y los archivos de la aplicación
+RUN apt-get update && apt-get install -y \
+    libpq-dev \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copiar el archivo de dependencias
 COPY requirements.txt requirements.txt
+
+# Instalar las dependencias
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copiar el resto de los archivos de la aplicación
+# Copiar el código de la aplicación
 COPY . .
 
-# Exponer el puerto 5000 (por defecto en Flask)
-EXPOSE 5000
-
-# Establecer la variable de entorno para habilitar el modo de desarrollo
+# Establecer FLASK_APP y activar modo debug
+ENV FLASK_APP=app
 ENV FLASK_ENV=development
+ENV FLASK_DEBUG=1
 
-# Comando para ejecutar la aplicación
+# Ejecutar Flask
 CMD ["flask", "run", "--host=0.0.0.0"]

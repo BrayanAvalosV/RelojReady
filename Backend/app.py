@@ -1,16 +1,11 @@
-from flask import Flask, jsonify, request
-from flask_cors import CORS
+from app import create_app  # Asegúrate de importar create_app
+from .routes import general_blueprint
 
-app = Flask(__name__)
-CORS(app)
+app = create_app()
 
-@app.route('/login', methods=['POST'])
-def login():
-    data = request.json
-    rut = data.get('rut')
-    password = data.get('password')
-    # Aquí puedes agregar la lógica de autenticación
-    return jsonify({"message": "Login successful"})
+app.register_blueprint(general_blueprint)
 
-if __name__ == '__main__':
+
+
+if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000)
