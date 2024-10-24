@@ -51,6 +51,8 @@ def load_routes(app,db):
         logout_user()
         return jsonify({'message': 'Sesión finalizada'}), 200
     
+    
+    @app.route('/api/admin', methods=['GET'])
     def admin():
         if not current_user.is_authenticated:
             abort(403)
@@ -132,4 +134,72 @@ def load_routes(app,db):
         
         data = request.get_json()
         
+        usuario.nombre = data.get('nombre',usuario.nombre)
+        usuario.apellido_paterno = data.get('apellido_paterno', usuario.apellido_paterno)
+        usuario.apellido_materno = data.get('apellido_materno', usuario.apellido_materno)
+        
+        nueva_contrasena = data.get('contrasena')
+        if nueva_contrasena:
+            usuario.contrasena = generate_password_hash('nueva_contrasena')
+        
+        try:
+            db.session.commit()
+            return jsonify({'message': 'Usuario actualizado correctamente'}), 200
+    
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'message': f'Hubo un error al actualizar el usuario: {e}'}), 500
+        
+    @app.route(('/api/delete_user/<rut_persona>') , methods= ['DELETE'])
+    @login_required
+    def delete_user(rut_persona):
+        usuario = Usuario.query.filter_by(rut_persona=rut_persona).first()
+        if not usuario:
+            return jsonify({'message': 'Usuario no encontrado'}), 404
+        
+        try:
+            db.session.delete(usuario)
+            db.session.commit()
+            return jsonify({'message': 'Usuario eliminado correctamente'}), 200
+            
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'message': f'Hubo un error al eliminar el usuario: {e}'}), 500
+        
+    @app.route(('/api/clientes'),methods = ['GET'])
+    @login_required
+    def get_clientes():
+            
+        if current_user.rol != 'administrador':
+            abort(403)
+                
+        usuarios = Usuario.query.all()
+            
+            
+        return jsonify([usuario.to_dict() for usuario in usuarios])
+
+    @app.route('/api/admin/clientes', methods=['GET'])
+    def obtener_clientes():
+        if current_user.rol != 'administrador':
+            return jsonify({'message': 'Acceso denegado'}),403
+        
+        try:
+            usuarios = Usuario.query.all()
+            return jsonify([usuario.to_dict() for usuario in usuarios])
+        
+        except Exception as e:
+            return jsonify({'message': f'Ocurrio un error: {str(e)}'}),500
+        
+    @app.route('/api/users', methods=['GET'])
+    @login_required
+    def obtener_usuarios():
+        
+        user_info = {
+            'rut_persona': current_user.rut_persona,
+            'nombre': current_user.nombre,
+            'apellido_paterno': current_user.apellido_paterno,
+            'apellido_materno': current_user.apellido_materno,
+            
+        }
+        return jsonify(user_info)      
         
