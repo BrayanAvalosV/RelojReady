@@ -54,15 +54,18 @@ def cargar_datos_asignados(df_resultado, archivo_asignado):
     return df_cruzado
 
 def cargar_datos_reloj(df_cruzado, archivo_reloj):
-    df_reloj = pd.read_csv(archivo_reloj, header=None, sep=',', encoding='utf-8')
+    #df_reloj = pd.read_csv(archivo_reloj, header=None, sep=',', encoding='utf-8')
+    df_reloj = pd.read_csv(archivo_reloj, header=None, sep=',', dtype={5: str, 6: str}, encoding='utf-8')
     # Eliminar las columnas que no son necesarias
-    df_reloj['hora'] = df_reloj.apply(lambda row: f"{row[5]:02}:{row[6]:02}", axis=1)
+    df_reloj['hora_reloj'] = df_reloj.apply(lambda row: f"{row[5]}:{row[6]}", axis=1)
     # Transformar las columnas de fecha
-    df_reloj['fecha'] = df_reloj.apply(lambda row: f"{row[8]:02}/{row[7]:02}/{row[9]:02}", axis=1)
-    df_reloj = df_reloj.loc[:, [0,2,3,'hora','fecha']]
+    df_reloj['fecha_reloj'] = df_reloj.apply(lambda row: f"{row[8]:02}/{row[7]:02}/{row[9]:02}", axis=1)
+    df_reloj = df_reloj.loc[:, [2,3,'hora_reloj','fecha_reloj']]
 
     # Cruzar los datos entre el archivo cruzado y el reloj
     df_final = pd.merge(df_cruzado, df_reloj, left_on='RUT', right_on=3, how='right')
+    df_final = df_final.drop(columns=['Código Horario','DV',3,'HORARIO ASIGNADO'])
+    df_final = df_final.rename(columns={2: 'entrada/salida'})
     return df_final
 
 def main():
