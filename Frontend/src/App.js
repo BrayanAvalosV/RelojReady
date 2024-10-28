@@ -13,7 +13,6 @@ function App() {
             <div className="d-flex flex-column min-vh-100">
                 <div className="flex-fill"> {/* Este div permite que el contenido crezca */}
                     <Routes>
-                        
                         <Route path="/" element={<Login />} />
                         <Route path="/register" element={<Register />} />
                         <Route path="/admin-panel" element={<AdminPanel />} />

@@ -5,7 +5,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 const Login = () => {
     const [rut_persona, setRut_persona] = useState('');
-    const [password, setPassword] = useState('');
+    const [contrasena, setContrasena] = useState('');
     const [error, setError] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
     const navigate = useNavigate();
@@ -16,26 +16,26 @@ const Login = () => {
         setError(''); // Limpiar mensaje de error al intentar nuevamente
         try {
             // Agrega { withCredentials: true } para enviar cookies
-            const response = await api.post('/login', { rut_persona, password }, { withCredentials: true });
+            const response = await api.post('/login', { rut_persona, contrasena }, { withCredentials: true });
 
             console.log(response.data); // Verificar la respuesta en la consola
 
             // Verificar si el inicio de sesión fue exitoso
-            if (response.data.message === 'Inicio de sesión exitoso.') {
+            if (response.status === 200 && response.data.message === 'Sesión iniciada exitosamente.') {
                 // Almacena información del usuario en localStorage
                 localStorage.setItem('userRole', response.data.role);
                 localStorage.setItem('userName', response.data.nombre);
                 localStorage.setItem('isAuthenticated', true);
 
-                console.log('Inicio de sesión exitoso');
+               // console.log('Inicio de sesión exitoso');
                 setSuccessMessage('Has iniciado sesión exitosamente.');
 
                 // Redirigir después de 2 segundos
                 setTimeout(() => {
-                    navigate('/');
+                    navigate('/admin-panel');
                 }, 2000);
-            } else {
-                setError('Credenciales inválidas. Por favor, inténtalo de nuevo.');
+            //} else {
+               // setError('Algo salió mal. Por favor, inténtalo de nuevo.');
             }
         } catch (error) {
             console.error(error);
@@ -87,10 +87,10 @@ const Login = () => {
                             <label htmlFor="password" className="form-label">Contraseña</label>
                             <input
                                 type="password"
-                                id="password"
+                                id="contrasena"
                                 className="form-control"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
+                                value={contrasena}
+                                onChange={(e) => setContrasena(e.target.value)}
                                 placeholder="Ingresa tu contraseña"
                                 required
                             />

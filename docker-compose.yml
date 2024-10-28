@@ -9,9 +9,24 @@ services:
       - "5000:5000"
     volumes:
       - ./Backend:/app
+    command: python -m app.app
     environment:
       - FLASK_ENV=development
-    command: flask run --host=0.0.0.0
+      - DATABASE_URL=postgresql://user:password@user-db:5432/gestiondb_usuarios
+      - FLASK_DEBUG=1
+    depends_on:
+      - user-db
+
+  user-db:
+    image: postgres
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=gestiondb_usuarios
+    volumes:
+      - user_postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
 
   frontend:
     build:
@@ -21,7 +36,13 @@ services:
       - "3000:3000"
     volumes:
       - ./Frontend:/app
+      - /app/node_modules  # para evitar volver a instalar paquetes
     environment:
       - CHOKIDAR_USEPOLLING=true
+      - REACT_APP_USER_SERVICE_URL=http://backend:5000
+    command: ["npm", "run", "start"]
     stdin_open: true
     tty: true
+
+volumes:
+  user_postgres_data:

@@ -8,7 +8,6 @@ COPY package.json package-lock.json ./
 
 # Instalar dependencias
 RUN npm install
-RUN npm install axios bootstrap react-router-dom react-bootstrap react-icons formik yup react-icons
 
 # Copiar el resto del código
 COPY . .
@@ -20,4 +19,4 @@ ENV WATCHPACK_POLLING=true
 EXPOSE 3000
 
 # Comando para iniciar la aplicación
-CMD ["npm", "run", "start-watch"]
+CMD ["npm", "start"]

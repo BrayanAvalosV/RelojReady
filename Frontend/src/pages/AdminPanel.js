@@ -132,7 +132,7 @@ const AdminPanel = () => {
                             <td>{usuario.rol}</td>
                             <td>
                                 <button className="btn btn-info btn-sm me-2 mb-1" onClick={() => handleShowModal(usuario)}>Editar</button>
-                                <button className="btn btn-danger btn-sm mb-md-1" onClick={() => eliminarUsuario(usuario.email)}>Eliminar</button>
+                                <button className="btn btn-danger btn-sm mb-md-1" onClick={() => eliminarUsuario(usuario.rut_persona)}>Eliminar</button>
                             </td>
                         </tr>
                     ))}

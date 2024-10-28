@@ -15,3 +15,5 @@ root.render(
         </UserProvider>
     </React.StrictMode>
 );
+
+reportWebVitals();
