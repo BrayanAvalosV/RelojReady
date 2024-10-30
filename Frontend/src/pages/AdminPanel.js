@@ -82,8 +82,8 @@ const AdminPanel = () => {
 
     const handleEditUser = async () => {
         try {
-            // Actualiza el usuario, utilizando el correo actual
-            await api.put(`/edit_client/${currentUser.rut_persona}`, currentUser);
+            // Actualiza el usuario, utilizando el rut
+            await api.put(`/edit_user/${currentUser.rut_persona}`, currentUser);
             setSuccessMessage('Usuario actualizado correctamente');
             setUsuarios(usuarios.map(user => user.rut_persona === currentUser.rut_persona ? currentUser : user));
             handleCloseModal();
@@ -94,7 +94,7 @@ const AdminPanel = () => {
 
     const handleCreateUser = async () => {
         try {
-            await api.post('/create_client', currentUser);
+            await api.post('/create_user', currentUser);
             setSuccessMessage('Usuario creado correctamente');
             setUsuarios([...usuarios, currentUser]);
             handleCloseModal();
@@ -124,7 +124,7 @@ const AdminPanel = () => {
                 </thead>
                 <tbody>
                     {usuarios.map(usuario => (
-                        <tr className="mb-1" key={usuario.email}>
+                        <tr className="mb-1" key={usuario.rut_persona}>
                             <td>{usuario.rut_persona}</td>
                             <td>{usuario.nombre}</td>
                             <td>{usuario.apellido_paterno}</td>

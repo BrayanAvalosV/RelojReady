@@ -32,10 +32,14 @@ const Login = () => {
 
                 // Redirigir después de 2 segundos
                 setTimeout(() => {
+                    if (response.data.role === 'administrador') {
                     navigate('/admin-panel');
+                    } else {
+                        navigate('/file-upload');
+                    }
                 }, 2000);
-            //} else {
-               // setError('Algo salió mal. Por favor, inténtalo de nuevo.');
+            } else {
+                setError('Algo salió mal. Por favor, inténtalo de nuevo.');
             }
         } catch (error) {
             console.error(error);
@@ -72,7 +76,7 @@ const Login = () => {
 
                     <form onSubmit={handleLogin} className="border p-4 rounded shadow">
                         <div className="mb-3">
-                            <label htmlFor="RUT" className="form-label">RUT</label>
+                            <label htmlFor="text" className="form-label">RUT</label>
                             <input
                                 type="RUT"
                                 id="rut"

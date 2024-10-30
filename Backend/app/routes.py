@@ -61,8 +61,8 @@ def load_routes(app,db):
         if current_user.rol != 'administrador':
             abort(403)
             
-            usuarios = Usuario.query.all()
-            return jsonify([usuario.to_dict() for usuario in usuarios])
+        usuarios = Usuario.query.all()
+        return jsonify([usuario.to_dict() for usuario in usuarios])
         
     @app.route(('/api/create_user'), methods=['POST'])
     @login_required
@@ -76,7 +76,7 @@ def load_routes(app,db):
         contrasena = data.get('contrasena')
         rol = data.get('rol')
         
-        usuario_existente = Usuario.query.filterby(rut_persona=rut_persona).first()
+        usuario_existente = Usuario.query.filter_by(rut_persona=rut_persona).first()
         if usuario_existente:
             return jsonify({'message': 'El usuario ya existe'}), 400
         
@@ -113,7 +113,7 @@ def load_routes(app,db):
             if usuario and usuario.check_password(contrasena):
                 login_user(usuario)
                 return jsonify({
-                    'message': 'Sesión iniciada exitosamente',
+                    'message': 'Sesión iniciada exitosamente.',
                     'nombre': usuario.nombre,
                     'role': usuario.rol
                 }), 200
@@ -167,7 +167,7 @@ def load_routes(app,db):
             db.session.rollback()
             return jsonify({'message': f'Hubo un error al eliminar el usuario: {e}'}), 500
         
-    @app.route(('/api/clientes'),methods = ['GET'])
+    @app.route(('/api/usuarios'),methods = ['GET'])
     @login_required
     def get_clientes():
             
@@ -179,7 +179,7 @@ def load_routes(app,db):
             
         return jsonify([usuario.to_dict() for usuario in usuarios])
 
-    @app.route('/api/admin/clientes', methods=['GET'])
+    @app.route('/api/admin/usuarios', methods=['GET'])
     def obtener_clientes():
         if current_user.rol != 'administrador':
             return jsonify({'message': 'Acceso denegado'}),403

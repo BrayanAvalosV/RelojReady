@@ -26,7 +26,7 @@ const Register = () => {
         console.log('Datos del formulario',formData);
     
         try {
-            const response = await api.post('/register', formData);
+            const response = await api.post('/create_user', formData);
             console.log('Respuesta del servidor:', response.data); // Imprimir respuesta del servidor
             setSuccessMessage(response.data.message);
             setErrorMessage(''); // Limpiar el mensaje de error si el registro es exitoso
