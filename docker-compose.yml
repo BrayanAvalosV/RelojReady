@@ -1,40 +1,48 @@
-version: '3.8'
+version: '3'
 
 services:
-  # Servicio de React (Frontend)
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    ports:
-      - "3000:80"
-    depends_on:
-      - backend
-
-  # Servicio de Flask (Backend)
   backend:
     build:
-      context: ./backend
+      context: ./Backend
       dockerfile: Dockerfile
-    environment:
-      - FLASK_ENV=development
-      - DATABASE_URL=postgresql://postgres:password@db:5432/mydatabase
     ports:
       - "5000:5000"
-    depends_on:
-      - db
-
-  # Servicio de PostgreSQL (Base de Datos)
-  db:
-    image: postgres:14-alpine
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: mydatabase
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - ./Backend:/app
+    command: python -m app.app
+    environment:
+      - FLASK_ENV=development
+      - DATABASE_URL=postgresql://user:password@user-db:5432/gestiondb_usuarios
+      - FLASK_DEBUG=1
+    depends_on:
+      - user-db
+
+  user-db:
+    image: postgres
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=gestiondb_usuarios
+    volumes:
+      - user_postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
 
+  frontend:
+    build:
+      context: ./Frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./Frontend:/app
+      - /app/node_modules  # para evitar volver a instalar paquetes
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - REACT_APP_USER_SERVICE_URL=http://backend:5000
+    command: ["npm", "run", "start"]
+    stdin_open: true
+    tty: true
+
 volumes:
-  postgres-data:
+  user_postgres_data:
