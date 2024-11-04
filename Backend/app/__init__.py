@@ -4,6 +4,7 @@ from .database import db, init_db
 from .models import Usuario
 from flask_login import LoginManager
 from flask_cors import CORS
+import os
 
 def create_app():
     app = Flask(__name__)
@@ -24,6 +25,16 @@ def create_app():
     login_manager.login_view = 'login'
     login_manager.login_message = "Por favor, inicia sesión para acceder a esta página."
 
+    # Función para la carga de archivos
+   # UPLOAD_FOLDER_RELOJ = 'uploads/reloj'
+   # LAST_UPLOAD_FOLDER_RELOJ = 'uploads/ultimo_reloj' 
+   # UPLOAD_FOLDER_HORARIO1 = 'uploads/horario1'
+#    UPLOAD_FOLDER_HORARIO2 = 'uploads/horario2'
+
+ #   os.makedirs(UPLOAD_FOLDER_RELOJ, exist_ok=True)
+  #  os.makedirs(LAST_UPLOAD_FOLDER_RELOJ, exist_ok=True)
+   # os.makedirs(UPLOAD_FOLDER_HORARIO1, exist_ok=True)
+    #os.makedirs(UPLOAD_FOLDER_HORARIO2, exist_ok=True)
     # Función para cargar el usuario desde la base de datos
     @login_manager.user_loader
     def load_user(rut_persona):  # Cambiado a rut persona

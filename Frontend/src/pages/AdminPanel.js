@@ -49,7 +49,7 @@ const AdminPanel = () => {
 
     const eliminarUsuario = async (rut_persona) => {
         try {
-            await api.delete(`/delete_client/${rut_persona}`);
+            await api.delete(`/delete_user/${rut_persona}`);
             setSuccessMessage('Usuario eliminado correctamente');
             setUsuarios(usuarios.filter(user => user.rut_persona !== rut_persona));
         } catch (error) {

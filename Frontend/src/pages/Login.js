@@ -1,3 +1,4 @@
+// login.js
 import React, { useState } from 'react';
 import api from '../services/api';
 import { useNavigate } from 'react-router-dom';
@@ -21,7 +22,7 @@ const Login = () => {
             console.log(response.data); // Verificar la respuesta en la consola
 
             // Verificar si el inicio de sesión fue exitoso
-            if (response.status === 200 && response.data.message === 'Sesión iniciada exitosamente.') {
+            if (response.status === 200 && response.data.role) {
                 // Almacena información del usuario en localStorage
                 localStorage.setItem('userRole', response.data.role);
                 localStorage.setItem('userName', response.data.nombre);
@@ -34,8 +35,9 @@ const Login = () => {
                 setTimeout(() => {
                     if (response.data.role === 'administrador') {
                     navigate('/admin-panel');
-                    } else {
-                        navigate('/file-upload');
+                    } else
+                    if (response.data.role === 'usuario') {
+                        navigate('/home');
                     }
                 }, 2000);
             } else {
@@ -78,7 +80,7 @@ const Login = () => {
                         <div className="mb-3">
                             <label htmlFor="text" className="form-label">RUT</label>
                             <input
-                                type="RUT"
+                                type="text"
                                 id="rut"
                                 className="form-control"
                                 value={rut_persona}
