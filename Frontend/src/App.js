@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import Home from './components/Home';
 import UploadComponent from './components/UploadComponent';
 import HorarioUploadComponent from './components/HorarioUploadComponent';
+import Table from './components/Table';
+import DataTable from './components/DataTable';
 
 const App = () => {
     const [currentPage, setCurrentPage] = useState('home');
@@ -14,6 +16,8 @@ const App = () => {
                 return <UploadComponent />;
             case 'carga-horario':
                 return <HorarioUploadComponent />;
+            case 'tabla': // Agrega el caso para la nueva página
+                return <DataTable />;
             default:
                 return <Home setCurrentPage={setCurrentPage} />;
         }
@@ -21,6 +25,12 @@ const App = () => {
 
     return (
         <div className="app-container">
+            <nav>
+                <button onClick={() => setCurrentPage('home')}>Inicio</button>
+                <button onClick={() => setCurrentPage('carga-reloj')}>Carga de Reloj</button>
+                <button onClick={() => setCurrentPage('carga-horario')}>Carga de Horario</button>
+                <button onClick={() => setCurrentPage('tabla')}>Tabla de Datos</button>
+            </nav>
             {renderPage()}
         </div>
     );

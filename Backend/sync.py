@@ -68,14 +68,14 @@ def cargar_datos_reloj(df_cruzado, archivo_reloj):
     df_final = df_final.rename(columns={2: 'entrada/salida'})
 
     # Formato fechas y horas
-    df_final['Hora Entrada'] = pd.to_datetime(df_final['Hora Entrada'], format='%H:%M').dt.time
-    df_final['Hora Salida'] = pd.to_datetime(df_final['Hora Salida'], format='%H:%M').dt.time
-    df_final['hora_reloj'] = pd.to_datetime(df_final['hora_reloj'], format='%H:%M').dt.time
+    #df_final['Hora Entrada'] = pd.to_datetime(df_final['Hora Entrada'], format='%H:%M').dt.time
+    #df_final['Hora Salida'] = pd.to_datetime(df_final['Hora Salida'], format='%H:%M').dt.time
+    #df_final['hora_reloj'] = pd.to_datetime(df_final['hora_reloj'], format='%H:%M').dt.time
 
-    df_final['fecha_reloj'] = pd.to_datetime(df_final['fecha_reloj'], format='%d/%m/%y')
+    #df_final['fecha_reloj'] = pd.to_datetime(df_final['fecha_reloj'], format='%d/%m/%y')
     return df_final
 
-def main():
+def obtener_df():
     # Cargar el archivo de horarios más reciente
     archivo_horarios = obtener_archivo_reciente(UPLOAD_FOLDER_HORARIO1, '.csv')
     if archivo_horarios:
@@ -94,13 +94,21 @@ def main():
                 df_final = cargar_datos_reloj(df_cruzado, archivo_reloj)
 
                 # Mostrar resultado final
-                print(df_final.head(20))
+                return df_final
+                #print(df_final.head(20))
             else:
                 print("No se encontró ningún archivo de reloj.")
         else:
             print("No se encontró ningún archivo asignado.")
     else:
         print("No se encontró ningún archivo de horarios.")
+
+
+def main():
+    df=obtener_df()
+    print('SEPARACION')
+    print(df.head(20))
+        
 
 if __name__ == '__main__':
     main()

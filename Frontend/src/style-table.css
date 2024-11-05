@@ -1,0 +1,7 @@
+.row-red {
+    background-color: lightcoral; /* Color para filas con Hora Salida antes de las 12 */
+}
+
+.row-green {
+    background-color: lightgreen; /* Color para filas con Hora Salida a partir de las 12 */
+}
