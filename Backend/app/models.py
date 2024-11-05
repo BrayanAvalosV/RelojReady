@@ -36,4 +36,5 @@ class Usuario(db.Model, UserMixin):
             "apellido_paterno": self.apellido_paterno,
             "apellido_materno": self.apellido_materno,
             "rol": self.rol
+            
         }

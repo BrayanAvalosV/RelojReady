@@ -47,7 +47,7 @@ def create_app():
 
             # Crear el administrador solo si no existe
             # esta funcion solo es para probar en esta fase, luego deberia implementarse la funcion para crear nuevo admin
-            if not Usuario.query.filter_by(rut_persona='11111111-1').first():
+            if not Usuario.query.filter_by(rut_persona='12345678-9').first():
                 admin = Usuario(
                     rut_persona='12345678-9',
                     nombre='Admin',
@@ -56,9 +56,10 @@ def create_app():
                     contrasena='admin123',  # La contraseña será hasheada automáticamente
                     rol='administrador'
                 )
+                
                 db.session.add(admin)
                 db.session.commit()
-                print("Administrador creado exitosamente.")
+                print("Administrador y usuario creado exitosamente.")
             else:
                 print("El administrador ya existe.")
 

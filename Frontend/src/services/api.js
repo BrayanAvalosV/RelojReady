@@ -7,8 +7,8 @@ const api = axios.create({
 });
 
 // Usar Axios en lugar de fetch para la función de login
-export const login = async (rut_persona, password) => {
-    const response = await api.post('/login', { rut_persona, password }); // Usar la instancia de Axios
+export const login = async (rut_persona, contrasena) => {
+    const response = await api.post('/login', { rut_persona, contrasena }); // Usar la instancia de Axios
 
     // Comprobar la respuesta
     if (response.status !== 200) {  // Verificar si el status no es 200

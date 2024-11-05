@@ -3,11 +3,11 @@ import '../styles.css';
 
 const Home = ({ setCurrentPage }) => {
     const handleCargaReloj = () => {
-        setCurrentPage('carga-reloj');
+        setCurrentPage('/carga-reloj');
     };
 
     const handleCargaHorario = () => {
-        setCurrentPage('carga-horario');
+        setCurrentPage('/carga-horario');
     };
 
     return (
