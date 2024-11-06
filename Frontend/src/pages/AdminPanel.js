@@ -105,7 +105,7 @@ const AdminPanel = () => {
 
     return (
         <div className="container mt-5">
-            <h2 className="text-center mt-4">Panel de Control del Administrador</h2>
+            <h2 className="text-center mt-4">Panel de gestión de usuarios del sistema.</h2>
             {error && <div className="alert alert-danger">{error}</div>}
             {successMessage && <div className="alert alert-success">{successMessage}</div>}
 

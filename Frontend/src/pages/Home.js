@@ -1,13 +1,16 @@
 import React from 'react';
 import '../styles.css';
+import { useNavigate } from 'react-router-dom';
+
 
 const Home = ({ setCurrentPage }) => {
+    const navigate = useNavigate();
     const handleCargaReloj = () => {
-        setCurrentPage('/carga-reloj');
+        navigate('/carga-reloj');
     };
 
     const handleCargaHorario = () => {
-        setCurrentPage('/carga-horario');
+        navigate('/carga-horario');
     };
 
     return (
