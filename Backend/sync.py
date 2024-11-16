@@ -22,8 +22,8 @@ def obtener_archivo_reciente(carpeta, extension):
 
 
 def procesar_horarios(df):
-    #dias_semana = ['LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES']
-    dias_semana = ['LUNES']
+    dias_semana = ['LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES', 'SÁBADO', 'DOMINGO']
+    #dias_semana = ['LUNES']
     dataframes_dias = []
     codigo_horario_actual = None
 
@@ -66,12 +66,26 @@ def cargar_datos_reloj(df_cruzado, archivo_reloj):
     df_reloj['fecha_reloj'] = df_reloj.apply(lambda row: f"{row[8]:02}/{row[7]:02}/{row[9]:02}", axis=1)
     df_reloj = df_reloj.loc[:, [2,3,'hora_reloj','fecha_reloj']]
 
+    dias_mapeo = {
+    "Monday": "LUNES",
+    "Tuesday": "MARTES",
+    "Wednesday": "MIERCOLES",
+    "Thursday": "JUEVES",
+    "Friday": "VIERNES",
+    "Saturday": "SABADO",
+    "Sunday": "DOMINGO"
+    }
+
+    # Convertir fecha_reloj a día de la semana
+    df_reloj['dia_semana'] = pd.to_datetime(df_reloj['fecha_reloj'], format='%d/%m/%y').dt.strftime('%A').map(dias_mapeo)
+    df_reloj = df_reloj.loc[:, [2, 3, 'hora_reloj', 'fecha_reloj', 'dia_semana']]
+
     # Asegurarse de que 'RUT' en df_cruzado y la columna de RUT en df_reloj sean strings
     df_cruzado['RUT'] = df_cruzado['RUT'].astype(str)
     df_reloj[3] = df_reloj[3].astype(str)
 
     # Cruzar los datos entre el archivo cruzado y el reloj
-    df_final = pd.merge(df_cruzado, df_reloj, left_on='RUT', right_on=3, how='right')
+    df_final = pd.merge(df_cruzado, df_reloj, left_on=['RUT', 'Día'], right_on=[3,'dia_semana'], how='right')
     df_final = df_final.drop(columns=['Código Horario','DV',3,'HORARIO ASIGNADO'])
     df_final = df_final.rename(columns={2: 'entrada/salida'})
 
