@@ -249,6 +249,8 @@ def load_routes(app,db):
         file.seek(0) 
         file.save(last_file_path)
 
+        # cargar el archivo a mongo
+        
         return jsonify({'message': f'Archivo {file.filename} subido exitosamente a Carga Reloj y guardado en ambas carpetas'}), 200
 
     @app.route('/upload-horario', methods=['POST'])

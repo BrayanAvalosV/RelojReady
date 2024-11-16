@@ -29,3 +29,4 @@ Backend/requirements.txt
 /Frontend/node_modules/caniuse-lite
 /Frontend/node_modules/caniuse-lite
 /Frontend/node_modules/color-convert
+/Backend/app/__pycache__

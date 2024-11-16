@@ -14,8 +14,10 @@ services:
       - FLASK_ENV=development
       - DATABASE_URL=postgresql://user:password@user-db:5432/gestiondb_usuarios
       - FLASK_DEBUG=1
+      - MONGO_URI=mongodb://mongo:27017/mi_basedatos
     depends_on:
       - user-db
+      - mongo
 
   user-db:
     image: postgres
@@ -44,5 +46,16 @@ services:
     stdin_open: true
     tty: true
 
+  mongo:
+    image: mongo:latest
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+
+
 volumes:
   user_postgres_data:
+  mongo_data:
