@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import Home from './components/Home';
 import UploadComponent from './components/UploadComponent';
 import HorarioUploadComponent from './components/HorarioUploadComponent';
-import Table from './components/Table';
 import DataTable from './components/DataTable';
 
 const App = () => {

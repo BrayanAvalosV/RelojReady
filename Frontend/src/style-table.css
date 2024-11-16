@@ -1,12 +1,12 @@
 .row-red {
-    background-color: lightcoral; /* Color para filas con Hora Salida antes de las 12 */
+    background-color: #f08080; /* Color para filas con Hora Salida antes de las 12 */
 }
 
 .row-green {
     background-color: lightgreen; /* Color para filas con Hora Salida a partir de las 12 */
 }
 .row-yellow {
-    background-color: rgb(32, 184, 52); /* Color para filas con Hora Salida a partir de las 12 */
+    background-color: rgb(169, 226, 93); /* Color para filas con Hora Salida a partir de las 12 */
 }
 .row-highlight {
     background-color: rgb(32, 184, 52); /* Color para filas con Hora Salida a partir de las 12 */
