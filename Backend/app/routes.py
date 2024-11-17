@@ -96,7 +96,7 @@ def load_routes(app,db):
             nombre=nombre,
             apellido_paterno=apellido_paterno,
             apellido_materno=apellido_materno,
-            contrasena=generate_password_hash(contrasena),
+            contrasena= contrasena,
             rol=rol
         )
         
@@ -118,7 +118,6 @@ def load_routes(app,db):
         
         rut_persona = data.get('rut_persona')
         contrasena = data.get('contrasena')
-        print("datos recibidos :",data)
         try:
             usuario = Usuario.query.filter_by(rut_persona=rut_persona).first()
             if usuario and usuario.check_password(contrasena):
@@ -130,7 +129,6 @@ def load_routes(app,db):
                 }), 200
                 
             else:
-                print("Credenciales incorrectas")  # Debugging
                 return jsonify({'message': 'Credenciales invalidas.'}), 401
                 
         except Exception as e:
@@ -218,6 +216,7 @@ def load_routes(app,db):
             
         }
         return jsonify(user_info)
+    
     @app.route('/upload-reloj', methods=['POST'])
     def upload_reloj():
         if 'file' not in request.files:

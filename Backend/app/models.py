@@ -1,3 +1,4 @@
+# models.py
 from .database import db
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -35,6 +36,7 @@ class Usuario(db.Model, UserMixin):
             "nombre": self.nombre,
             "apellido_paterno": self.apellido_paterno,
             "apellido_materno": self.apellido_materno,
-            "rol": self.rol
+            "rol": self.rol,
+            "contrasena": self.contrasena
             
         }

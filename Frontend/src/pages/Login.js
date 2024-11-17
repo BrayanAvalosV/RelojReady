@@ -18,7 +18,6 @@ const Login = () => {
         try {
             // Agrega { withCredentials: true } para enviar cookies
             const response = await api.post('/login', { rut_persona, contrasena }, { withCredentials: true });
-
             console.log(response.data); // Verificar la respuesta en la consola
 
             // Verificar si el inicio de sesión fue exitoso
@@ -81,7 +80,7 @@ const Login = () => {
                             <label htmlFor="text" className="form-label">RUT</label>
                             <input
                                 type="text"
-                                id="rut"
+                                id="rut_persona"
                                 className="form-control"
                                 value={rut_persona}
                                 onChange={(e) => setRut_persona(e.target.value)}

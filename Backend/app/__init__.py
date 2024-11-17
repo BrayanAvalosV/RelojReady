@@ -2,9 +2,11 @@
 from flask import Flask
 from .database import db, init_db
 from .models import Usuario
-from flask_login import LoginManager
+from flask_login import LoginManager,logout_user, current_user
 from flask_cors import CORS
+from werkzeug.security import generate_password_hash
 import os
+from datetime import timedelta
 
 def create_app():
     app = Flask(__name__)
@@ -12,6 +14,7 @@ def create_app():
     CORS(app, supports_credentials=True)
     app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://user:password@user-db:5432/gestiondb_usuarios' # cambiar
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['REMEMBER_COOKIE_DURATION'] = timedelta(minutes=0)
     app.secret_key = 'appweb'  # Cambia esto a una clave más segura
 
     # Inicializar base de datos
@@ -62,10 +65,14 @@ def create_app():
                 print("Administrador y usuario creado exitosamente.")
             else:
                 print("El administrador ya existe.")
-
+   
         except Exception as e:
             print(f"Error al crear tablas o al insertar el administrador: {e}")
 
+    def force_logout_on_start():
+        if not hasattr(current_user,'is_authenticated') or not current_user.is_authenticated:
+            logout_user()
+    
     from .routes import load_routes
     load_routes(app, db)
 
