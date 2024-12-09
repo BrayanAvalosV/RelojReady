@@ -1,13 +1,18 @@
 import pandas as pd
 import os
-import dbregistro
+#import dbregistro
 from pymongo import MongoClient
 import json
+import requests
 
 # Definir las rutas donde se almacenan los archivos
 UPLOAD_FOLDER_RELOJ = 'uploads/reloj'
 UPLOAD_FOLDER_HORARIO1 = 'uploads/horario1'
 UPLOAD_FOLDER_HORARIO2 = 'uploads/horario2'
+
+client = MongoClient('mongodb://localhost:27017/')
+db = client['horariosDB']
+collection = db['registros']
 
 # Obtener el archivo más reciente de cada carpeta
 def obtener_archivo_reciente(carpeta, extension):
@@ -25,8 +30,8 @@ def obtener_archivo_reciente(carpeta, extension):
 
 
 def procesar_horarios(df):
-    #dias_semana = ['LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES']
-    dias_semana = ['LUNES']
+    dias_semana = ['LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES', 'SÁBADO', 'DOMINGO']
+    #dias_semana = ['LUNES']
     dataframes_dias = []
     codigo_horario_actual = None
 
@@ -69,12 +74,26 @@ def cargar_datos_reloj(df_cruzado, archivo_reloj):
     df_reloj['fecha_reloj'] = df_reloj.apply(lambda row: f"{row[8]:02}/{row[7]:02}/{row[9]:02}", axis=1)
     df_reloj = df_reloj.loc[:, [2,3,'hora_reloj','fecha_reloj']]
 
+    dias_mapeo = {
+    "Monday": "LUNES",
+    "Tuesday": "MARTES",
+    "Wednesday": "MIERCOLES",
+    "Thursday": "JUEVES",
+    "Friday": "VIERNES",
+    "Saturday": "SABADO",
+    "Sunday": "DOMINGO"
+    }
+
+    # Convertir fecha_reloj a día de la semana
+    df_reloj['dia_semana'] = pd.to_datetime(df_reloj['fecha_reloj'], format='%d/%m/%y').dt.strftime('%A').map(dias_mapeo)
+    df_reloj = df_reloj.loc[:, [2, 3, 'hora_reloj', 'fecha_reloj', 'dia_semana']]
+
     # Asegurarse de que 'RUT' en df_cruzado y la columna de RUT en df_reloj sean strings
     df_cruzado['RUT'] = df_cruzado['RUT'].astype(str)
     df_reloj[3] = df_reloj[3].astype(str)
 
     # Cruzar los datos entre el archivo cruzado y el reloj
-    df_final = pd.merge(df_cruzado, df_reloj, left_on='RUT', right_on=3, how='right')
+    df_final = pd.merge(df_cruzado, df_reloj, left_on=['RUT', 'Día'], right_on=[3,'dia_semana'], how='right')
     df_final = df_final.drop(columns=['Código Horario','DV',3,'HORARIO ASIGNADO'])
     df_final = df_final.rename(columns={2: 'entrada/salida'})
 
@@ -97,10 +116,12 @@ def obtener_df():
             archivo_reloj = obtener_archivo_reciente(UPLOAD_FOLDER_RELOJ, '.log')  # Cambiado a .log
             if archivo_reloj:
                 df_final = cargar_datos_reloj(df_cruzado, archivo_reloj)
-
-                # Mostrar resultado final
-                return df_final
-                #print(df_final.head(20))
+                df_final['Modificacion'] = 0  
+                df_final['Estado'] = 'Vivo'
+                documents = df_final.to_dict(orient='records')
+                collection.insert_many(documents)
+                response = requests.get('http://localhost:5000/process_data')
+                return
             else:
                 print("No se encontró ningún archivo de reloj.")
         else:
@@ -108,6 +129,21 @@ def obtener_df():
     else:
         print("No se encontró ningún archivo de horarios.")
 
+
+def main():
+    df = obtener_df()
+    print('SEPARACION')
+    print(df.head(20))
+
+
+if __name__ == '__main__':
+    main()
+
+
+################################################### 
+
+#con esto probe primero
+'''
 def cargar_dataframe_en_mongodb(df):
     documentos = df.to_dict(orient='records')
     for documento in documentos:
@@ -137,21 +173,4 @@ def extraer_documentos(db):
     print("Documentos extraídos de MongoDB:")
     print(df.head())  # Mostrar las primeras filas
     return df
-def main():
-    df = obtener_df()
-    db = connect_to_mongodb()
-    if df is not None:
-        guardar_dataframe_en_mongodb(df, db)  # Guardar en MongoDB
-        print("Datos almacenados en MongoDB.")
-    else:
-        print("No se generó ningún DataFrame.")
-    print('SEPARACION')
-    print(df.head(20))
-    print("\n\n")
-    extraer_documentos(db)  # Extraer de MongoDB
-
-
-
-
-if __name__ == '__main__':
-    main()
+'''

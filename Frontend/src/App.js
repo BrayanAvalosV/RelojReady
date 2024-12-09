@@ -8,6 +8,7 @@ import UploadComponent from './components/UploadComponent';
 import HorarioUploadComponent from './components/HorarioUploadComponent';
 import Home from './pages/Home';
 import Navbar from './components/Navbar';
+import DataTable from './components/DataTable';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
@@ -26,7 +27,7 @@ function App() {
                         {/* Integración de componentes de carga */}
                         <Route
                             path="/home"
-                            element={<Home setCurrentPage={setCurrentPage} />}
+                            element={<Home />}
                         />
                         <Route
                             path="/carga-reloj"
@@ -36,6 +37,10 @@ function App() {
                             path="/carga-horario"
                             element={<HorarioUploadComponent />}
                         />
+                        <Route
+                            path='/datatable'
+                            element={<DataTable />}
+                        />    
                     </Routes>
                 </div>
             </div>

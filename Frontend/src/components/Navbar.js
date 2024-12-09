@@ -35,12 +35,13 @@
             const userRole = localStorage.getItem('userRole');
             if (isAuthenticated) {
                 if (userRole === 'administrador') {
-                    navigate('/admin-panel');
+                    navigate("/admin-panel");
                 } else {
-                    navigate('/home');
+                    if (userRole === 'usuario')
+                    navigate("/home");
                 } 
             } else {
-                navigate('/');
+                navigate("/");
             }
         };
 
@@ -53,7 +54,16 @@
                     <div className="collapse navbar-collapse" id="navbarNav">
                         <ul className="navbar-nav me-auto">
                             <li className="nav-item">
-                                <Link className="nav-link" onClick={handleInicio}>Inicio</Link>
+                                <Link className="nav-link" to={"/home"}>Inicio</Link>  {/* arreglar esto despues */}
+                            </li>
+                            <li className="nav-item">
+                                <Link className="nav-link" to={"/carga-reloj"}>Carga reloj</Link>
+                            </li>
+                            <li className="nav-item">
+                                <Link className="nav-link" to={"/carga-horario"}>Carga horario</Link>
+                            </li>
+                            <li className="nav-item">
+                                <Link className="nav-link" to={"/datatable"}>Visualizar datos</Link>
                             </li>
                         </ul>
                         <ul className="navbar-nav ms-auto">
@@ -65,17 +75,13 @@
                                         Bienvenido, {user?.userName || localStorage.getItem('userName')}
                                     </span>
                                     <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                        {userRole === 'administrador' && (
-                                            <li>
-                                                <Link className="dropdown-item" to="/admin-panel">Panel de control</Link>
-                                            </li>
-                                            
-                                        )&&(<li>
-                                            <Link className="dropdown-item" to="/registro-cambios">Registro de cambios</Link>
-                                        </li>)}
-                                        <li>
-                                            <button className="dropdown-item" onClick={handleLogout}>Cerrar sesión</button>
-                                        </li>
+                                    {userRole === 'administrador' && (
+                                        <>
+                                            <li><Link className="dropdown-item" to="/admin-panel">Panel de control</Link></li>
+                                            <li><Link className="dropdown-item" to="/registro">Registro de cambios</Link></li>
+                                        </>
+                                    )}
+                                            <li><button className="dropdown-item" onClick={handleLogout}>Cerrar sesión</button></li>
                                     </ul>
                                 </li>
                             ) : (

@@ -7,6 +7,7 @@ from flask_cors import CORS
 from werkzeug.security import generate_password_hash
 import os
 from datetime import timedelta
+from pymongo import MongoClient
 
 def create_app():
     app = Flask(__name__)
@@ -19,6 +20,9 @@ def create_app():
 
     # Inicializar base de datos
     init_db(app)
+    
+    client = MongoClient('mongodb://mongodb:27017/')
+    mdb = client.horariosDB
 
     # Configurar Flask-Login
     login_manager = LoginManager()

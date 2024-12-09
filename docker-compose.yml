@@ -14,10 +14,12 @@ services:
       - FLASK_ENV=development
       - DATABASE_URL=postgresql://user:password@user-db:5432/gestiondb_usuarios
       - FLASK_DEBUG=1
-      - MONGO_URI=mongodb://mongo:27017/mi_basedatos
+      - MONGO_URI=mongodb://mongodb:27017/horariosDB
     depends_on:
       - user-db
-      - mongo
+      - mongodb
+    networks:
+      - app-network
 
   user-db:
     image: postgres
@@ -29,6 +31,8 @@ services:
       - user_postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    networks:
+      - app-network
 
   frontend:
     build:
@@ -38,24 +42,29 @@ services:
       - "3000:3000"
     volumes:
       - ./Frontend:/app
-      - /app/node_modules  # para evitar volver a instalar paquetes
+      - /app/node_modules
     environment:
       - CHOKIDAR_USEPOLLING=true
       - REACT_APP_USER_SERVICE_URL=http://backend:5000
     command: ["npm", "run", "start"]
     stdin_open: true
     tty: true
+    networks:
+      - app-network
 
-  mongo:
-    image: mongo:latest
-    container_name: mongo
+  mongodb:
+    image: mongo
+    volumes:
+      - mongodata:/data/db
     ports:
       - "27017:27017"
-    volumes:
-      - mongo_data:/data/db
-
-
+    networks:
+      - app-network
 
 volumes:
   user_postgres_data:
-  mongo_data:
+  mongodata:
+
+networks:
+  app-network:
+    driver: bridge
