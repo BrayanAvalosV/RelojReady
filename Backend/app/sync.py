@@ -54,6 +54,8 @@ def procesar_horarios(df):
 
     # Crear un DataFrame a partir de la lista de horarios
     resultado = pd.DataFrame(dataframes_dias, columns=['Día', 'Hora Entrada', 'Hora Salida', 'Código Horario'])
+    resultado['Hora Entrada'] = resultado['Hora Entrada'].apply(lambda x: str(x).zfill(5) if isinstance(x, str) else f"{int(x):02d}:00" if isinstance(x, (int, float)) else '')
+    resultado['Hora Salida'] = resultado['Hora Salida'].apply(lambda x: str(x).zfill(5) if isinstance(x, str) else f"{int(x):02d}:00" if isinstance(x, (int, float)) else '')
     return resultado
 
 def cargar_datos_asignados(df_resultado, archivo_asignado):
@@ -94,6 +96,7 @@ def cargar_datos_reloj(df_cruzado, archivo_reloj):
 
     # Cruzar los datos entre el archivo cruzado y el reloj
     df_final = pd.merge(df_cruzado, df_reloj, left_on=['RUT', 'Día'], right_on=[3,'dia_semana'], how='right')
+    df_final.fillna('NO REGISTRADO', inplace=True)
     df_final = df_final.drop(columns=['Código Horario','DV',3,'HORARIO ASIGNADO'])
     df_final = df_final.rename(columns={2: 'entrada/salida'})
 
