@@ -3,6 +3,7 @@ import Home from './components/Home';
 import UploadComponent from './components/UploadComponent';
 import HorarioUploadComponent from './components/HorarioUploadComponent';
 import DataTable from './components/DataTable';
+import '@fortawesome/fontawesome-free/css/all.min.css';
 
 const App = () => {
     const [currentPage, setCurrentPage] = useState('home');

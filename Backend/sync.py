@@ -93,6 +93,7 @@ def cargar_datos_reloj(df_cruzado, archivo_reloj):
 
     # Cruzar los datos entre el archivo cruzado y el reloj
     df_final = pd.merge(df_cruzado, df_reloj, left_on=['RUT', 'Día'], right_on=[3,'dia_semana'], how='right')
+    df_final.fillna('NO REGISTRADO', inplace=True)
     df_final = df_final.drop(columns=['Código Horario','DV',3,'HORARIO ASIGNADO'])
     df_final = df_final.rename(columns={2: 'entrada/salida'})
 
