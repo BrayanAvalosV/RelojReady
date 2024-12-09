@@ -117,9 +117,9 @@ const DataTable = () => {
     const columnDefs = [
         { headerName: 'Día', field: 'Día', flex: 1 },
         { headerName: 'RUT', field: 'RUT', editable: true, flex: 1 },
-        { headerName: 'entrada/salida', field: 'entrada/salida', editable: true, flex: 1 },
-        { headerName: 'fecha_reloj', field: 'fecha_reloj', flex: 1 },
-        { headerName: 'hora_reloj', field: 'hora_reloj', editable: true, flex: 1 },
+        { headerName: 'Entrada/Salida', field: 'entrada/salida', editable: true, flex: 1 },
+        { headerName: 'Fecha reloj', field: 'fecha_reloj', flex: 1 },
+        { headerName: 'Hora reloj', field: 'hora_reloj', editable: true, flex: 1 },
         { headerName: 'Entrada Horario', field: 'Hora Entrada', flex: 1 },
         { headerName: 'Salida Horario', field: 'Hora Salida', editable: true, flex: 1 },
         { headerName: 'Error encontrado', field: 'Error encontrado', flex: 1 },

@@ -2,6 +2,6 @@ from pymongo import MongoClient
 
 client = MongoClient()
 
-db = client['gestiondb_usuarios']
+db = client['horariosDB']
 
-collection = db["test_collection"]
+collection = db["registros"]
