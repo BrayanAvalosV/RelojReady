@@ -358,7 +358,7 @@ def load_routes(app,db):
         return jsonify({'message': 'Datos procesados', 'updates': [convert_objectid(reg) for reg in updates]}), 200
 
 
-    # Ruta para borrar duplicados
+        # Ruta para borrar duplicados
     @app.route('/delete-duplicates', methods=['POST'])
     def delete_duplicates():
         # Obtener todos los registros con estado 'Vivo' y 'Modificado', ordenados por RUT, entrada/salida, fecha_reloj y hora_reloj
@@ -391,6 +391,8 @@ def load_routes(app,db):
                     change_record = {
                         'RUT': reg.get('RUT'),
                         'entrada/salida': reg.get('entrada/salida'),
+                        'Hora Entrada' :reg.get('Hora Entrada'),
+                        'Hora Salida' :reg.get('Hora Salida'),
                         'hora_reloj': reg.get('hora_reloj'),
                         'fecha_reloj': reg.get('fecha_reloj'),
                         'Estado Anterior': reg.get('Estado'),
@@ -400,7 +402,7 @@ def load_routes(app,db):
                     }
                     
                     # Insertamos el registro en la colección 'registro_cambios' para tener un historial
-                    mdb.registro_cambios.insert_one(change_record)
+                    db.registro_cambios.insert_one(change_record)
                     
                     # Marcamos este registro como 'Muerto'
                     collection.update_one({'_id': reg['_id']}, {'$set': {'Estado': 'Muerto'}})
@@ -413,12 +415,6 @@ def load_routes(app,db):
             else:
                 # Si el RUT, entrada/salida y fecha_reloj son diferentes, actualizamos el "primer registro"
                 last_seen_reg = reg
-
-        # Eliminamos los duplicados de la colección original
-        #for reg in duplicates_to_delete:
-        # collection.delete_one({'_id': reg['_id']})
-
-        # Respuesta
         return jsonify({'message': f'{len(duplicates_to_delete)} duplicados eliminados y registrados'}), 200
     
     # Ruta para ajustar horarios
@@ -429,16 +425,31 @@ def load_routes(app,db):
         
         for reg in registros:
             # Actualizamos la hora_reloj a la Hora Salida
-            if 'Hora Salida' in reg:
-                collection.update_one(
-                    {'_id': reg['_id']}, 
-                    {
-                        '$set': {
-                            'hora_reloj': reg['Hora Salida'],  # Actualizamos la hora_reloj
-                            'Estado': 'Modificado'  # Cambiamos el Estado a 'Modificado'
+            if reg.get('hora_reloj') == "00:00":
+                if 'Hora Salida' in reg:
+                    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")  # Hora actual
+                    change_record = {
+                            'RUT': reg.get('RUT'),
+                            'entrada/salida': reg.get('entrada/salida'),
+                            'Hora Entrada' :reg.get('Hora Entrada'),
+                            'Hora Salida' :reg.get('Hora Salida'),
+                            'hora_reloj': reg.get('hora_reloj'),
+                            'fecha_reloj': reg.get('fecha_reloj'),
+                            'Estado Anterior': reg.get('Estado'),
+                            'Modificacion': reg.get('Modificacion'),
+                            'Fecha Cambio': current_time,  # Fecha y hora actual del cambio
+                            'Usuario': 'admin'  # Quién realizó el cambio
                         }
-                    }
-                )
+                    db.registro_cambios.insert_one(change_record)
+                    collection.update_one(
+                        {'_id': reg['_id']}, 
+                        {
+                            '$set': {
+                                'hora_reloj': reg['Hora Salida'],  # Actualizamos la hora_reloj
+                                'Estado': 'Modificado'  # Cambiamos el Estado a 'Modificado'
+                            }  
+                        }
+                    )
 
         return jsonify({'message': f'{len(registros)} horarios ajustados'}), 200
 
@@ -447,3 +458,116 @@ def load_routes(app,db):
     def get_records():
         records = list(collection.find({'Estado': {'$in': ['Vivo', 'Modificado']}}, {'_id': 0}))
         return jsonify(records), 200
+    @app.route('/get-min-max-dates', methods=['GET'])
+    def get_min_max_dates():
+        # Obtenemos las fechas de la base de datos, en este caso el campo 'fecha_reloj'
+        pipeline = [
+            {"$group": {
+                "_id": None,
+                "minDate": {"$min": "$fecha_reloj"},
+                "maxDate": {"$max": "$fecha_reloj"}
+            }}
+        ]
+        result = list(collection.aggregate(pipeline))
+        
+        if result:
+            min_date = result[0]['minDate']
+            max_date = result[0]['maxDate']
+            return jsonify({'minDate': min_date, 'maxDate': max_date})
+        else:
+            return jsonify({'minDate': None, 'maxDate': None}), 404
+        
+    @app.route('/get-records-by-date', methods=['POST'])
+    def get_records_by_date():
+        data = request.get_json()
+        start_date = datetime.strptime(data['startDate'], '%Y-%m-%d')
+        end_date = datetime.strptime(data['endDate'], '%Y-%m-%d')
+        
+        # Obtenemos los registros entre las fechas seleccionadas
+        records = collection.find({
+            "fecha_reloj": {"$gte": start_date, "$lte": end_date}
+        })
+        
+        # Extraemos las fechas de los registros
+        records_dates = [record['fecha_reloj'].strftime('%Y-%m-%d') for record in records]
+        
+        # Generamos un array con todos los días entre las fechas seleccionadas
+        all_dates = []
+        current_date = start_date
+        while current_date <= end_date:
+            all_dates.append(current_date.strftime('%Y-%m-%d'))
+            current_date += timedelta(days=1)
+        
+        # Días faltantes: los días en el rango que no están en los registros
+        missing_days = list(set(all_dates) - set(records_dates))
+        
+        return jsonify({
+            "missingDays": missing_days
+        })
+    @app.route('/export-log', methods=['GET'])
+    def export_log():
+        try:
+            # Obtener las fechas del query string
+            start_date = request.args.get('start_date')
+            end_date = request.args.get('end_date')
+
+            if not start_date or not end_date:
+                return jsonify({"error": "Se requieren las fechas de inicio y fin"}), 400
+
+            # Convertir las fechas
+            try:
+                start_date = datetime.strptime(start_date, "%Y-%m-%d")
+                end_date = datetime.strptime(end_date, "%Y-%m-%d")
+            except ValueError:
+                return jsonify({"error": "Formato de fecha inválido"}), 400
+
+            # Filtrar los registros en el rango de fechas
+            records = list(collection.find({
+                "Estado": "Vivo",
+                "fecha_reloj": {
+                    "$gte": start_date.strftime("%d/%m/%y"),
+                    "$lte": end_date.strftime("%d/%m/%y")
+                }
+            }))
+
+            if not records:
+                return jsonify({"error": "No hay registros en el rango especificado"}), 404
+
+            # Generar el archivo de salida
+            file_content = []
+            for record in records:
+                static_001 = "001"
+                static_zeros = "0000000000"
+                static_trailing = "00,00,00,00,00,0000000000,0000000000,    0.00,    0.00"
+
+                entry_exit = "01,03" if record.get('entrada/salida') == 3 else "01,01"
+                rut = record.get('RUT', "NO_RUT")
+                hora_reloj = record.get('hora_reloj', "00:00")
+                hora, minuto = hora_reloj.split(':') if ':' in hora_reloj else ("00", "00")
+                fecha_reloj = record.get('fecha_reloj', "01/01/70")
+                try:
+                    fecha_dt = datetime.strptime(fecha_reloj, "%d/%m/%y")
+                    mes, dia, año = fecha_dt.strftime("%m"), fecha_dt.strftime("%d"), fecha_dt.strftime("%y")
+                except ValueError:
+                    mes, dia, año = "01", "01", "70"
+
+                line = f"{static_001},{entry_exit},{rut},{static_zeros},{hora},{minuto},{mes},{dia},{año},{static_trailing}"
+                file_content.append(line)
+
+            output = io.StringIO()
+            output.write("\n".join(file_content))
+            output.seek(0)
+
+            return Response(
+                output.getvalue(),
+                mimetype='text/plain',
+                headers={"Content-Disposition": "attachment; filename=exported_file.log"}
+            )
+
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+        
+    @app.route('/logs', methods=['GET'])
+    def get_logs():
+        logs = list(db.registro_cambios.find({}, {'_id': 0}))  # Ajusta el filtro y proyección según tus datos
+        return jsonify(logs), 200

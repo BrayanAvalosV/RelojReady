@@ -19,6 +19,7 @@ const DataTable = () => {
     const [varMinutos, setVarMinutos] = useState(5);
     const [varHoras, setVarHoras] = useState(1);
     const [isModalConfOpen, setIsModalConfOpen] = useState(false);
+    const [isDateRangeModalOpen, setIsDateRangeModalOpen] = useState(false);
     
     const toggleModal = () => setIsModalConfOpen(!isModalConfOpen);
 
@@ -213,6 +214,7 @@ const DataTable = () => {
                 justifyContent: 'center',
             }}>
         <i className="fa fa-cog" style={{ fontSize: '16px' }}></i>
+        
 
     </button>
         <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', gap: '30px' }}>
@@ -241,6 +243,22 @@ const DataTable = () => {
             buttonText="Modificar"
             alignment="flex-end" // Alineado a la derecha
         />
+        {/* Botón 4: Exportar */}
+        <button
+            onClick={() => setIsDateRangeModalOpen(true)}
+            style={{
+                padding: '10px 20px',
+                backgroundColor: '#007bff',
+                color: 'white',
+                border: 'none',
+                borderRadius: '5px',
+                minWidth: '200px',
+                cursor: 'pointer',
+            }}
+        >
+            Exportar
+        </button>
+        
     </div>     
             </div>
     
@@ -258,6 +276,11 @@ const DataTable = () => {
                 }
             }}
         >
+            {/* Modal de selección de fechas */}
+            <DateRangeModal
+                isOpen={isDateRangeModalOpen}
+                onRequestClose={() => setIsDateRangeModalOpen(false)}
+            />
     
             <h2 style={{ textAlign: 'center' }}>
                 {activeAction === 'edit' ? 'Confirmar Edición' : activeAction === 'delete' ? 'Confirmar Eliminación' : 'Acción'}
