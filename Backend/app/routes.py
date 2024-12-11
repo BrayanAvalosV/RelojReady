@@ -1,7 +1,7 @@
 # app/routes.py
 from flask import request, jsonify, abort,current_app
 import io
-from flask import request, jsonify, abort, current_app
+from flask import request, Response, jsonify, abort, current_app
 
 from .models import Usuario  # Asegúrate de importar tu modelo USUARIO
 from flask_login import login_user, logout_user, login_required, current_user
@@ -308,9 +308,11 @@ def load_routes(app,db):
     def process_data():
         registros = list(collection.find())
         updates = []
+
         for reg in registros:
             modificacion = 0
             duplicado = False
+
             if all(key in reg for key in ['RUT', 'entrada/salida', 'hora_reloj', 'fecha_reloj']):
                 # Busca posibles duplicados
                 for other_reg in registros:
@@ -326,6 +328,7 @@ def load_routes(app,db):
                         )
                         if diferencia <= 180 and reg['fecha_reloj'] == other_reg['fecha_reloj']:
                             duplicado = True
+                            print(f"Duplicado detectado: {reg['_id']} y {other_reg['_id']}")
                             break
 
                 # Marca como duplicado
@@ -334,7 +337,7 @@ def load_routes(app,db):
 
                 # Marca si `hora_reloj` es "00:00"
                 if reg['hora_reloj'] == "00:00":
-                    modificacion = 2 if modificacion == 0 else 3
+                    modificacion = 2 
 
             # Añade el estado si no existe
             if 'Estado' not in reg:
@@ -344,6 +347,9 @@ def load_routes(app,db):
             if modificacion > 0:
                 reg['Modificacion'] = modificacion
                 updates.append(reg)
+
+                # Debug para verificar el proceso de actualización
+                print(f"Registro actualizado: {reg['_id']} -> Modificacion: {modificacion}")
 
                 # Actualiza el registro en la base de datos
                 collection.update_one({'_id': reg['_id']}, {'$set': {'Modificacion': modificacion}})
@@ -361,11 +367,19 @@ def load_routes(app,db):
 
         # Devuelve la respuesta con los registros actualizados
         return jsonify({'message': 'Datos procesados', 'updates': [convert_objectid(reg) for reg in updates]}), 200
-
-
-        # Ruta para borrar duplicados
+    
+     # Ruta para borrar duplicados
     @app.route('/delete-duplicates', methods=['POST'])
     def delete_duplicates():
+        # Obtener el valor de varMinutos desde el cuerpo de la solicitud
+        data = request.json
+        var_minutos = data.get('config', {}).get('varMinutos', 0)
+        print(f"varMinutos recibido: {var_minutos}") 
+        print("hola")
+
+        # Convertir varMinutos a segundos para la comparación
+        max_difference_seconds = var_minutos * 60  # Convertir minutos a segundos
+
         # Obtener todos los registros con estado 'Vivo' y 'Modificado', ordenados por RUT, entrada/salida, fecha_reloj y hora_reloj
         registros = list(collection.find({'Estado': {'$in': ['Vivo', 'Modificado']}}).sort([('RUT', 1), ('entrada/salida', 1), ('fecha_reloj', 1), ('hora_reloj', 1)]))
         
@@ -389,15 +403,15 @@ def load_routes(app,db):
                     (datetime.strptime(reg['hora_reloj'], "%H:%M") - datetime.strptime(last_seen_reg['hora_reloj'], "%H:%M")).total_seconds()
                 )
                 
-                # Si la diferencia es menor o igual a 180 segundos (3 minutos), es un duplicado
-                if diferencia <= 180:
+                # Si la diferencia es menor o igual a los segundos calculados a partir de varMinutos, es un duplicado
+                if diferencia <= max_difference_seconds:
                     # Antes de eliminar, registramos el cambio
                     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")  # Hora actual
                     change_record = {
                         'RUT': reg.get('RUT'),
                         'entrada/salida': reg.get('entrada/salida'),
-                        'Hora Entrada' :reg.get('Hora Entrada'),
-                        'Hora Salida' :reg.get('Hora Salida'),
+                        'Hora Entrada': reg.get('Hora Entrada'),
+                        'Hora Salida': reg.get('Hora Salida'),
                         'hora_reloj': reg.get('hora_reloj'),
                         'fecha_reloj': reg.get('fecha_reloj'),
                         'Estado Anterior': reg.get('Estado'),
@@ -407,7 +421,7 @@ def load_routes(app,db):
                     }
                     
                     # Insertamos el registro en la colección 'registro_cambios' para tener un historial
-                    mdb .registro_cambios.insert_one(change_record)
+                    mdb.registro_cambios.insert_one(change_record)
                     
                     # Marcamos este registro como 'Muerto'
                     collection.update_one({'_id': reg['_id']}, {'$set': {'Estado': 'Muerto'}})
@@ -420,41 +434,55 @@ def load_routes(app,db):
             else:
                 # Si el RUT, entrada/salida y fecha_reloj son diferentes, actualizamos el "primer registro"
                 last_seen_reg = reg
+        
         return jsonify({'message': f'{len(duplicates_to_delete)} duplicados eliminados y registrados'}), 200
     
     # Ruta para ajustar horarios
     @app.route('/adjust-time', methods=['POST'])
     def adjust_time():
-        # Obtener registros que tienen Modificacion: 2 y Estado: 'Vivo'
+        # Obtener registros que tienen Modificacion: 3 y Estado: 'Vivo'
         registros = list(collection.find({'Modificacion': 2, 'Estado': 'Vivo'}))
         
+        print(f"Registros encontrados: {len(registros)}")  # Depuración
+
         for reg in registros:
             # Actualizamos la hora_reloj a la Hora Salida
             if reg.get('hora_reloj') == "00:00":
-                if 'Hora Salida' in reg:
+                if 'Hora Salida' in reg and reg['Hora Salida']:
                     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")  # Hora actual
+                    
+                    # Registro de cambio
                     change_record = {
-                            'RUT': reg.get('RUT'),
-                            'entrada/salida': reg.get('entrada/salida'),
-                            'Hora Entrada' :reg.get('Hora Entrada'),
-                            'Hora Salida' :reg.get('Hora Salida'),
-                            'hora_reloj': reg.get('hora_reloj'),
-                            'fecha_reloj': reg.get('fecha_reloj'),
-                            'Estado Anterior': reg.get('Estado'),
-                            'Modificacion': reg.get('Modificacion'),
-                            'Fecha Cambio': current_time,  # Fecha y hora actual del cambio
-                            'Usuario': 'admin'  # Quién realizó el cambio
-                        }
-                    mdb .registro_cambios.insert_one(change_record)
+                        'RUT': reg.get('RUT'),
+                        'entrada/salida': reg.get('entrada/salida'),
+                        'Hora Entrada': reg.get('Hora Entrada'),
+                        'Hora Salida': reg.get('Hora Salida'),
+                        'hora_reloj': reg.get('hora_reloj'),
+                        'fecha_reloj': reg.get('fecha_reloj'),
+                        'Estado Anterior': reg.get('Estado'),
+                        'Modificacion': reg.get('Modificacion'),
+                        'Fecha Cambio': current_time,
+                        'Usuario': 'admin'
+                    }
+                    
+                    # Insertar registro de cambio
+                    try:
+                        mdb.registro_cambios.insert_one(change_record)
+                        print(f"Registro de cambio insertado para {reg['_id']}")
+                    except Exception as e:
+                        print(f"Error al insertar en registro_cambios: {e}")
+
+                    # Actualizar documento
                     collection.update_one(
                         {'_id': reg['_id']}, 
                         {
                             '$set': {
-                                'hora_reloj': reg['Hora Salida'],  # Actualizamos la hora_reloj
-                                'Estado': 'Modificado'  # Cambiamos el Estado a 'Modificado'
-                            }  
+                                'hora_reloj': reg['Hora Salida'], 
+                                'Estado': 'Modificado'
+                            }
                         }
                     )
+                    print(f"Documento {reg['_id']} actualizado.")
 
         return jsonify({'message': f'{len(registros)} horarios ajustados'}), 200
 
@@ -574,5 +602,5 @@ def load_routes(app,db):
         
     @app.route('/logs', methods=['GET'])
     def get_logs():
-        logs = list(mdb .registro_cambios.find({}, {'_id': 0}))  # Ajusta el filtro y proyección según tus datos
+        logs = list(mdb.registro_cambios.find({}, {'_id': 0}))  # Ajusta el filtro y proyección según tus datos
         return jsonify(logs), 200

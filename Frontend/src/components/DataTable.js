@@ -97,6 +97,7 @@ const DataTable = () => {
     
             // Error 2: Marcaje múltiple
             if (index > 0 && error === '') { // Solo procesar si aún no hay error asignado
+                const varMinutos = Number(localStorage.getItem('varMinutos') || 0);
                 for (let i = 0; i < index; i++) {
                     const prevRow = array[i];
                     const camposAComparar = ['Día', 'RUT', 'entrada/salida', 'fecha_reloj'];
@@ -129,6 +130,7 @@ const DataTable = () => {
                 const rutActual = filaActual['RUT'];
     
                 const filasPrevias = array.slice(0, index).filter(filaAnterior => filaAnterior['RUT'] === rutActual);
+                const varHoras = Number(localStorage.getItem('varHors') || 0);
     
                 if (filasPrevias.length > 0) {
                     const ultimaFilaPrev = filasPrevias[filasPrevias.length - 1];
@@ -202,38 +204,62 @@ const DataTable = () => {
     
     const applyChanges = () => {
         if (activeAction === 'edit') {
+            //const varMinutos = Number(localStorage.getItem('varMinutos') || 0);
+            //const varHoras = Number(localStorage.getItem('varHoras') || 0);
             fetch('http://localhost:5000/adjust-time', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(rowsToEdit.map(row => ({
                     RUT: row['RUT'],
                     newDay: row.newDay || row['Día'],
+                   //config: { varMinutos, varHoras }
                 })))
             })
             .then(response => response.json())
             .then(data => {
                 console.log('Edición confirmada:', data);
                 setIsModalOpen(false);
+                fetch('http://localhost:5000/get-records')
+                    .then(response => response.json())
+                    .then(data => {
+                    const processedData = processErrors(data);
+                    setRowData(processedData);
+                    })
+                    .catch(error => console.error('Error fetching data:', error));
                 //fetch();
             })
             .catch(error => {
                 console.error('Error al editar:', error);
             });
         } else if (activeAction === 'delete') {
+            const varMinutos = Number(localStorage.getItem('varMinutos') || 0);
+            //const varHoras = Number(localStorage.getItem('varHoras') || 0);
             
             fetch('http://localhost:5000/delete-duplicates', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(rowsToEdit.map(row => ({
-                    RUT: row['RUT'],
-                    fecha_reloj: row['fecha_reloj'],
-                    hora_reloj: row['hora_reloj']
-                })))
+                body: JSON.stringify({
+                    config: {
+                        varMinutos: varMinutos  // Aquí pasas el valor de varMinutos directamente dentro de config
+                    },
+                    rows: rowsToEdit.map(row => ({
+                        RUT: row['RUT'],
+                        fecha_reloj: row['fecha_reloj'],
+                        hora_reloj: row['hora_reloj']
+                    }))
+                })
             })
             .then(response => response.json())
             .then(data => {
                 console.log('Eliminación confirmada:', data);
                 setIsModalOpen(false);
+                fetch('http://localhost:5000/get-records')
+                    .then(response => response.json())
+                    .then(data => {
+                    const processedData = processErrors(data);
+                    setRowData(processedData);
+                    })
+                    .catch(error => console.error('Error fetching data:', error));
                 //fetch();
             })
             .catch(error => {
