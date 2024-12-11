@@ -2,9 +2,27 @@ import React from 'react';
 
 const ActionButton = ({ title, description, onClick, buttonText }) => {
     return (
-        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-            <h3>{title}</h3>
-            <p>{description}</p>
+        <div 
+            style={{
+                textAlign: 'center',
+                marginBottom: '20px',
+                padding: '10px',
+                backgroundColor: '#f9f9f9',
+                borderRadius: '8px',
+                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+            }}
+        >
+            {/* Descripción */}
+            <p 
+                style={{
+                    marginBottom: '2px',
+                    color: '#555',
+                }}
+            >
+                {description}
+            </p>
+
+            {/* Botón */}
             <button
                 onClick={onClick}
                 title={description}
@@ -16,7 +34,8 @@ const ActionButton = ({ title, description, onClick, buttonText }) => {
                     borderRadius: '5px',
                     minWidth: '200px',
                     cursor: 'pointer',
-                    marginTop: '1px', // Espacio entre el texto y el botón
+                    fontSize: '16px',
+                    marginTop:'5px'
                 }}
             >
                 {buttonText}

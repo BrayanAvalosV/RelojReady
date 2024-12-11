@@ -8,6 +8,9 @@ import axios from 'axios';
 import { io } from 'socket.io-client';
 import ConfigModal from '../components/ModalTiempo'
 import ActionButton from '../components/ActionButton';
+import FilterComponent from '../components/FilterComponent';
+import ConfirmationModal from '../components/ConfirmationModal';
+import Table from '../components/Table';
 
 Modal.setAppElement('#root');
 
@@ -18,11 +21,12 @@ const DataTable = () => {
     const [activeAction, setActiveAction] = useState('');
     const [varMinutos, setVarMinutos] = useState(5);
     const [varHoras, setVarHoras] = useState(1);
-    const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
-    const openConfigModal = () => setIsConfigModalOpen(true);
-    const closeConfigModal = () => setIsConfigModalOpen(false);
     const [isModalConfOpen, setIsModalConfOpen] = useState(false);
+    const initialRowData = [];
+    const [filteredData, setFilteredData] = useState(initialRowData);
 
+    const [selectedFilter, setSelectedFilter] = useState('');
+    
     const toggleModal = () => setIsModalConfOpen(!isModalConfOpen);
     
 
@@ -37,6 +41,41 @@ const DataTable = () => {
             .catch(error => console.error('Error fetching data:', error));
        
     }, []);
+
+    useEffect(() => {
+        setFilteredData(rowData); // Actualiza los datos filtrados cuando cambian los datos principales
+    }, [rowData]);
+    
+    const handleFilter = (searchValue) => {
+        if (!searchValue) {
+            setFilteredData(rowData); // Mostrar todos los datos si el campo está vacío
+        } else {
+            const filtered = rowData.filter(row => 
+                row['RUT'] && row['RUT'].toLowerCase().includes(searchValue.toLowerCase())
+            );
+            setFilteredData(filtered);
+        }
+    };
+
+    const handleFilterChange = (event) => {
+        const filter = event.target.value; // Opción seleccionada
+        setSelectedFilter(filter);
+
+        if (!filter) {
+            setFilteredData(rowData); // Mostrar todos los datos si no hay filtro
+        } else {
+            const filtered = rowData.filter(row => {
+                // Filtrar por las condiciones especificadas
+                if (filter === 'NO REGISTRADO') {
+                    return row['Día'] === 'NO REGISTRADO';
+                } else {
+                    return row['Error encontrado'] === filter;
+                }
+            });
+            setFilteredData(filtered);
+        }
+    };
+
     // CRITERIOS CASOS DE ERROR
     const processErrors = (data) => {
         return data.map((row, index, array) => {
@@ -204,136 +243,61 @@ const DataTable = () => {
             });
         }
     };
+
     
 
     return (
-        <><div style={{ display: 'flex', alignItems: 'center', width: '90%' }}>
-            <button
-            onClick={toggleModal}
-            style={{
-                position: 'absolute',
-                top: '10px',
-                right: '10px',
-                padding: '10px 15px',
-                backgroundColor: '#28a745',
-                color: 'white',
-                border: 'none',
-                borderRadius: '50%',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-            }}
-        >
-        <i className="fa fa-cog" style={{ fontSize: '16px' }}></i>
-    </button>
-        <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', gap: '30px' }}>
-        {/* Botón 1: Omisión de Marcaje */}
-        <ActionButton
-            title="Omisión de Marcaje"
-            description="Permite que en aquellas filas donde la entrada no es marcada se le asigne el horario programado."
-            onClick={handleOmission}
-            buttonText="Modificar"
-            alignment="flex-start" // Alineado a la izquierda
-        />
-
-        {/* Botón 2: Marcaje Múltiple */}
-        <ActionButton
-            title="Marcaje múltiple"
-            description="Encuentra filas en donde se ha marcado más de 1 vez, en un rango de tiempo de 5 minutos."
-            onClick={handleMultipleMarks}
-            buttonText="Modificar"
-        />
-
-        {/* Botón 3: Entrada/Salida Incorrecta */}
-        <ActionButton
-            title="Ajustar entrada/salida Incorrecta"
-            description="Revisa que no existan dos entradas o dos salidas consecutivas para la misma persona."
-            onClick={handleIncorrectEntryExit}
-            buttonText="Modificar"
-            alignment="flex-end" // Alineado a la derecha
-        />
-    </div>     
-            </div>
-    
-            <><Modal
-            isOpen={isModalOpen}
-            onRequestClose={() => setIsModalOpen(false)}
-            contentLabel="Confirmación de Cambios"
-            style={{
-                content: {
-                    maxWidth: '500px',
-                    margin: 'auto',
-                    padding: '20px',
-                    borderRadius: '8px',
-                    border: '1px solid #ccc',
-                }
-            }}
-        >
-    
-            <h2 style={{ textAlign: 'center' }}>
-                {activeAction === 'edit' ? 'Confirmar Edición' : activeAction === 'delete' ? 'Confirmar Eliminación' : 'Acción'}
-            </h2>
-                    {/* Mostrar mensaje de advertencia*/}
-            {activeAction === 'ajuste' && (
-                <p style={{ textAlign: 'center', color: '#dc3545', fontWeight: 'bold', marginBottom: '20px' }}>
-                    ⚠️ Asegúrese que los registros múltiples han sido tratados
-                </p>
-            )}
-            <p>
-                {activeAction === 'edit'
-                    ? 'Las siguientes filas serán editadas:'
-                    : activeAction === 'delete'
-                    ? 'Las siguientes filas serán eliminadas:'
-                    : 'Detalles de la acción:'}
-            </p>
-            <ul style={{ paddingLeft: '20px' }}>
-                {rowsToEdit.map((row, index) => (
-                    <li key={index}>
-                        Día: {row['Día']}, RUT: {row['RUT']}, hora_reloj: {row['hora_reloj']}
-                        {activeAction === 'edit' && (
-                            <>
-                                <br />
-                                <strong>Nuevos valores:</strong> 
-                                <span style={{ color: '#28a745' }}>
-                                    Día: {row.newDay || row['Día']}, Nueva hora_reloj: {row.newHour || row['Hora Salida']}
-                                </span>
-                            </>
-                        )}
-                    </li>
-                ))}
-            </ul>
-            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+        <>
+            {/* Botón de Configuración de Reglas */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginBottom: '20px' }}>
                 <button
-                    onClick={applyChanges}
-                    style={{
-                        padding: '10px 20px',
-                        marginRight: '10px',
-                        backgroundColor: '#28a745',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '5px',
-                        cursor: 'pointer',
-                    }}
+                    onClick={toggleModal}
+                    className="button-style"
+                    style={{ display: 'flex', alignItems: 'center', padding: '10px', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
                 >
-                    Confirmar
-                </button>
-                <button
-                    onClick={() => setIsModalOpen(false)}
-                    style={{
-                        padding: '10px 20px',
-                        backgroundColor: '#dc3545',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '5px',
-                        cursor: 'pointer',
-                    }}
-                >
-                    Cancelar
+                    <i className="fa fa-cog" style={{ fontSize: '16px', marginRight: '8px' }}></i>
+                    Configuración
                 </button>
             </div>
-        </Modal><>
+    
+            {/* Contenedor de Botones Ajuste*/}
 
+            <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', gap: '20px', marginBottom: '10px' }}>
+                <h2 style={{ textAlign: 'center', marginTop:'40px', color: '#555' }}>
+                    Opciones de Corrección y Ajuste
+                </h2>
+                <ActionButton
+                    title="Omisión de Marcaje"
+                    description="Permite que en aquellas filas donde la entrada no es marcada se le asigne el horario programado."
+                    onClick={handleOmission}
+                    buttonText="Omisión de Marcaje"
+                    alignment="flex-start"
+                />
+                <ActionButton
+                    title="Marcaje múltiple"
+                    description="Encuentra filas en donde se ha marcado más de 1 vez, en un rango de tiempo de 5 minutos."
+                    onClick={handleMultipleMarks}
+                    buttonText="Marcaje múltiple"
+                />
+                <ActionButton
+                    title="Ajustar entrada/salida Incorrecta"
+                    description="Revisa que no existan dos entradas o dos salidas consecutivas para la misma persona."
+                    onClick={handleIncorrectEntryExit}
+                    buttonText="Ajustar entrada/salida"
+                    alignment="Omisión de Marcaje"
+                />
+            </div>
+    
+            {/* Modal de confirmación Botones*/}
+            <ConfirmationModal
+                isModalOpen={isModalOpen}
+                setIsModalOpen={setIsModalOpen}
+                activeAction={activeAction}
+                rowsToEdit={rowsToEdit}
+                applyChanges={applyChanges}
+            />
+    
+            {/* Modal de configuración (Minutos/Horas)*/}
             <ConfigModal
                 isOpen={isModalConfOpen}
                 onClose={toggleModal}
@@ -342,30 +306,22 @@ const DataTable = () => {
                 varHoras={varHoras}
                 setVarHoras={setVarHoras}
             />
-
-
-                    <div className="ag-theme-alpine" style={{ height: '400px', width: '100%' }}>
-                        <AgGridReact
-                            rowData={rowData}
-                            columnDefs={columnDefs}
-                            defaultColDef={{
-                                sortable: false,   
-                                suppressMovable: true,
-                                editable: true,
-                                resizable: false,
-                                flex: 1
-                            }}
-                            rowClassRules={{
-                                'row-red': params => params.data['Error encontrado'] === 'Omisión de Marcaje',
-                                'row-yellow': params => params.data['Error encontrado'] === 'Marcaje múltiple',
-                                //'row-orange': params => params.data['Error encontrado'] === '3',
-                            }}
-                            onCellValueChanged={onCellValueChanged} 
-                            pagination={true} 
-                            paginationPageSize={10} />
-                    </div>
-                </></></>
+    
+            {/* Filtro RUT y Tipo de ERROR*/}
+            <FilterComponent
+                handleFilter={handleFilter}
+                handleFilterChange={handleFilterChange}
+                selectedFilter={selectedFilter}
+            />
+    
+            {/* Tabla */}
+            <Table
+                filteredData={filteredData}
+                columnDefs={columnDefs}
+                onCellValueChanged={onCellValueChanged}
+            />
+        </>
     );
-};
-
+}
+    
 export default DataTable;
