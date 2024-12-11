@@ -10,9 +10,9 @@ UPLOAD_FOLDER_RELOJ = 'uploads/reloj'
 UPLOAD_FOLDER_HORARIO1 = 'uploads/horario1'
 UPLOAD_FOLDER_HORARIO2 = 'uploads/horario2'
 
-client = MongoClient('mongodb://localhost:27017/')
-db = client['horariosDB']
-collection = db['registros']
+client = MongoClient('mongodb://mongo-container:27017/')
+mdb = client['horariosDB']
+collection = mdb ['registros']
 
 # Obtener el archivo más reciente de cada carpeta
 def obtener_archivo_reciente(carpeta, extension):

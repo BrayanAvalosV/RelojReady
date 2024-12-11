@@ -54,10 +54,14 @@ services:
 
   mongodb:
     image: mongo
+    container_name: mongo-container
     volumes:
       - mongodata:/data/db
     ports:
-      - "27017:27017"
+      - "27017:27017" # Permite el acceso desde herramientas externas como MongoDB Compass
+    # Eliminar las variables de entorno para deshabilitar la autenticación
+    environment: 
+      - MONGO_INITDB_DATABASE=horariosDB # Base de datos inicial
     networks:
       - app-network
 

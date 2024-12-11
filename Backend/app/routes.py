@@ -1,15 +1,15 @@
 # app/routes.py
-from flask import request, jsonify, abort, current_app
+from flask import request, jsonify, abort, Response,current_app
 from .models import Usuario  # Asegúrate de importar tu modelo USUARIO
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import  generate_password_hash
 import os
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, timedelta
 from .sync import obtener_df
 from pymongo import MongoClient
 from bson import ObjectId
-
+#from sync import obtener_df  
 UPLOAD_FOLDER_RELOJ = 'uploads/reloj'
 LAST_UPLOAD_FOLDER_RELOJ = 'uploads/ultimo_reloj' 
 UPLOAD_FOLDER_HORARIO1 = 'uploads/horario1'
@@ -21,10 +21,9 @@ os.makedirs(UPLOAD_FOLDER_HORARIO1, exist_ok=True)
 os.makedirs(UPLOAD_FOLDER_HORARIO2, exist_ok=True)
 
 
-MONGO_URL= "mongodb://mongo:27017/horariosDB"
-client = MongoClient(MONGO_URL)
-mdb = client['horariosDB']
-collection = mdb['registros']
+client = MongoClient('mongodb://mongo-container:27017/')
+mdb  = client['horariosDB']
+collection = mdb ['registros']
 
 def get_mongo_collection():
     client = MongoClient("mongodb://mongo:27017/horariosDB")
@@ -402,7 +401,7 @@ def load_routes(app,db):
                     }
                     
                     # Insertamos el registro en la colección 'registro_cambios' para tener un historial
-                    db.registro_cambios.insert_one(change_record)
+                    mdb .registro_cambios.insert_one(change_record)
                     
                     # Marcamos este registro como 'Muerto'
                     collection.update_one({'_id': reg['_id']}, {'$set': {'Estado': 'Muerto'}})
@@ -440,7 +439,7 @@ def load_routes(app,db):
                             'Fecha Cambio': current_time,  # Fecha y hora actual del cambio
                             'Usuario': 'admin'  # Quién realizó el cambio
                         }
-                    db.registro_cambios.insert_one(change_record)
+                    mdb .registro_cambios.insert_one(change_record)
                     collection.update_one(
                         {'_id': reg['_id']}, 
                         {
@@ -569,5 +568,5 @@ def load_routes(app,db):
         
     @app.route('/logs', methods=['GET'])
     def get_logs():
-        logs = list(db.registro_cambios.find({}, {'_id': 0}))  # Ajusta el filtro y proyección según tus datos
+        logs = list(mdb .registro_cambios.find({}, {'_id': 0}))  # Ajusta el filtro y proyección según tus datos
         return jsonify(logs), 200
