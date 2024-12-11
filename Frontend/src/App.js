@@ -7,6 +7,7 @@ import AdminPanel from './pages/AdminPanel';
 import UploadComponent from './components/UploadComponent';
 import HorarioUploadComponent from './components/HorarioUploadComponent';
 import Home from './pages/Home';
+import LogsPage from './components/LogsPage';
 import Navbar from './components/Navbar';
 import DataTable from './components/DataTable';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -27,7 +28,7 @@ function App() {
                         <Route path="/admin-panel" element={<AdminPanel />} />
                         {/* Integración de componentes de carga */}
                         <Route
-                            path="/home"
+                            path="home"
                             element={<Home />}
                         />
                         <Route
@@ -41,6 +42,10 @@ function App() {
                         <Route
                             path='/datatable'
                             element={<DataTable />}
+                        /> 
+                        <Route
+                            path='/logs'
+                            element={<LogsPage />}
                         />    
                     </Routes>
                 </div>

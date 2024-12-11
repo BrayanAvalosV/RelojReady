@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Modal from 'react-modal';
 
 const ConfigModal = ({ 
@@ -11,9 +11,24 @@ const ConfigModal = ({
     maxHoras = 12,
     maxMinutos = 59 
 }) => {
-    const handleInputChange = (setter,maxValue) => (e) => {
+    // Al cargar, obtiene valores guardados en localStorage
+    useEffect(() => {
+        const savedMinutos = localStorage.getItem('varMinutos');
+        const savedHoras = localStorage.getItem('varHoras');
+
+        if (savedMinutos !== null) {
+            setVarMinutos(Number(savedMinutos));
+        }
+
+        if (savedHoras !== null) {
+            setVarHoras(Number(savedHoras));
+        }
+    }, [setVarMinutos, setVarHoras]);
+
+    const handleInputChange = (setter, maxValue, key) => (e) => {
         const value = Math.min(maxValue, Math.max(0, Number(e.target.value))); // Entre 0 y maxValue
         setter(value);
+        localStorage.setItem(key, value); // Guarda el valor en localStorage
     };
 
     return (
@@ -60,7 +75,7 @@ const ConfigModal = ({
                     <input
                         type="number"
                         value={varMinutos}
-                        onChange={handleInputChange(setVarMinutos, 59)}
+                        onChange={handleInputChange(setVarMinutos, 59, 'varMinutos')}
                         style={{ width: '100%', padding: '5px' }}
                     />
                 </label>
@@ -69,7 +84,7 @@ const ConfigModal = ({
                     <input
                         type="number"
                         value={varHoras}
-                        onChange={handleInputChange(setVarHoras, 12)}
+                        onChange={handleInputChange(setVarHoras, 12, 'varHoras')}
                         style={{ width: '100%', padding: '5px' }}
                     />
                 </label>
