@@ -48,7 +48,7 @@ const ConfigModal = ({
                 ✖
             </button>
 
-            <h4 style={{ textAlign: 'center', marginBottom: '20px' }}>Configurar Valores</h4>
+            <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>Configurar Valores</h2>
             <form
                 onSubmit={(e) => {
                     e.preventDefault();
