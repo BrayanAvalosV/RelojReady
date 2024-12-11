@@ -1,14 +1,16 @@
 # app/routes.py
+import io
 from flask import request, jsonify, abort, current_app
 from .models import Usuario  # Asegúrate de importar tu modelo USUARIO
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import  generate_password_hash
 import os
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, timedelta
 from .sync import obtener_df
 from pymongo import MongoClient
 from bson import ObjectId
+from requests import Response
 
 UPLOAD_FOLDER_RELOJ = 'uploads/reloj'
 LAST_UPLOAD_FOLDER_RELOJ = 'uploads/ultimo_reloj' 
@@ -21,10 +23,9 @@ os.makedirs(UPLOAD_FOLDER_HORARIO1, exist_ok=True)
 os.makedirs(UPLOAD_FOLDER_HORARIO2, exist_ok=True)
 
 
-MONGO_URL= "mongodb://mongo:27017/horariosDB"
-client = MongoClient(MONGO_URL)
-mdb = client['horariosDB']
-collection = mdb['registros']
+client = MongoClient('mongodb://mongo-container:27017/')
+db = client['horariosDB']
+collection = db['registros']
 
 def get_mongo_collection():
     client = MongoClient("mongodb://mongo:27017/horariosDB")

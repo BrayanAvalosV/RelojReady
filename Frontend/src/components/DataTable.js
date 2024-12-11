@@ -8,6 +8,7 @@ import axios from 'axios';
 import { io } from 'socket.io-client';
 import ConfigModal from '../components/ModalTiempo'
 import ActionButton from '../components/ActionButton';
+import DateRangeModal from './DateRangeModal';
 
 Modal.setAppElement('#root');
 

@@ -21,8 +21,9 @@ def create_app():
     # Inicializar base de datos
     init_db(app)
     
-    client = MongoClient('mongodb://mongodb:27017/')
-    mdb = client.horariosDB
+    client = MongoClient('mongodb://mongo-container:27017/')
+    mdb = client['horariosDB']
+    collection = mdb['registros']
 
     # Configurar Flask-Login
     login_manager = LoginManager()
