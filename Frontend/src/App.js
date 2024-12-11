@@ -7,9 +7,12 @@ import AdminPanel from './pages/AdminPanel';
 import UploadComponent from './components/UploadComponent';
 import HorarioUploadComponent from './components/HorarioUploadComponent';
 import Home from './pages/Home';
+import LogsPage from './components/LogsPage';
 import Navbar from './components/Navbar';
+import DataTable from './components/DataTable';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import '@fortawesome/fontawesome-free/css/all.min.css';
 
 function App() {
     const [currentPage, setCurrentPage] = useState('home');
@@ -25,8 +28,8 @@ function App() {
                         <Route path="/admin-panel" element={<AdminPanel />} />
                         {/* Integración de componentes de carga */}
                         <Route
-                            path="/home"
-                            element={<Home setCurrentPage={setCurrentPage} />}
+                            path="home"
+                            element={<Home />}
                         />
                         <Route
                             path="/carga-reloj"
@@ -36,6 +39,14 @@ function App() {
                             path="/carga-horario"
                             element={<HorarioUploadComponent />}
                         />
+                        <Route
+                            path='/datatable'
+                            element={<DataTable />}
+                        /> 
+                        <Route
+                            path='/logs'
+                            element={<LogsPage />}
+                        />    
                     </Routes>
                 </div>
             </div>

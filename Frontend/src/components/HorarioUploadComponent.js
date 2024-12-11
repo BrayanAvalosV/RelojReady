@@ -1,5 +1,6 @@
 import React from 'react';
 import { useDropzone } from 'react-dropzone';
+import { Navigate } from 'react-router-dom';
 
 const HorarioUploadComponent = () => {
     const [horario1, setHorario1] = React.useState(null);
@@ -60,19 +61,19 @@ const HorarioUploadComponent = () => {
                 <div className="upload-area" {...getRootPropsHorario1()} style={{ width: '45%' }}>
                     <input {...getInputPropsHorario1()} />
                     <img src={`${process.env.PUBLIC_URL}/file-icon.png`} alt="File icon" />
-                    {horario1 ? <p>Archivo horario 1 seleccionado: {horario1.name}</p> : <p>Arrastra y suelta el archivo horario 1 aquí, o haz clic para seleccionar uno</p>}
+                    {horario1 ? <p>Archivo horario 1 seleccionado: {horario1.name}</p> : <p>Arrastra y suelta el archivo horarios asignados aquí, o haz clic para seleccionar uno</p>}
                 </div>
                 <div className="upload-area" {...getRootPropsHorario2()} style={{ width: '45%' }}>
                     <input {...getInputPropsHorario2()} />
                     <img src={`${process.env.PUBLIC_URL}/file-icon.png`} alt="File icon" />
-                    {horario2 ? <p>Archivo horario 2 seleccionado: {horario2.name}</p> : <p>Arrastra y suelta el archivo horario 2 aquí, o haz clic para seleccionar uno</p>}
+                    {horario2 ? <p>Archivo horario 2 seleccionado: {horario2.name}</p> : <p>Arrastra y suelta el archivo horarios creados aquí, o haz clic para seleccionar uno</p>}
                 </div>
             </div>
             {message && <p>{message}</p>}
             <button onClick={confirmUpload} disabled={!horario1 || !horario2} style={{ marginTop: '20px', display: 'block', margin: '20px auto' }}>
                 Confirmar subida
             </button>
-            <button onClick={() => window.location.href = '/'} style={{ marginTop: '20px', display: 'block', margin: '20px auto' }}>
+            <button onClick={() => window.location.href = '/home'} style={{ marginTop: '20px', display: 'block', margin: '20px auto' }}>
                 Regresar al Home
             </button>
         </div>

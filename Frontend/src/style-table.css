@@ -1,0 +1,28 @@
+.row-red {
+    background-color: #f08080; /* Color para filas con Hora Salida antes de las 12 */
+}
+
+.row-yellow {
+    background-color: rgb(220, 223, 79); /* Color para filas con Hora Salida a partir de las 12 */
+}
+.row-orange {
+    background-color: rgb(224, 170, 69); /* Color para filas con Hora Salida a partir de las 12 */
+}
+.row-blue {
+    background-color: #5473d8; /* Color para filas con Hora Salida a partir de las 12 */
+}
+
+.button-style {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 10px 15px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
