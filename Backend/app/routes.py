@@ -1,5 +1,8 @@
 # app/routes.py
-from flask import request, jsonify, abort, Response,current_app
+from flask import request, jsonify, abort,current_app
+import io
+from flask import request, jsonify, abort, current_app
+
 from .models import Usuario  # Asegúrate de importar tu modelo USUARIO
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import  generate_password_hash
@@ -22,6 +25,7 @@ os.makedirs(UPLOAD_FOLDER_HORARIO2, exist_ok=True)
 
 
 client = MongoClient('mongodb://mongo-container:27017/')
+
 mdb  = client['horariosDB']
 collection = mdb ['registros']
 
