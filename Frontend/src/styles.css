@@ -3,13 +3,36 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100vh; 
+  height: 100vh;
+  background-color: #f0f0f0;
+  padding: 40px;
 }
 
-.button-container {
-  display: flex;
-  flex-direction: column;
-  gap: 20px; 
+h1 {
+  font-size: 4rem; /* Aumentado el tamaño */
+  font-weight: bold;
+  color: #333;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2); /* Agrega una sombra suave */
+  margin-bottom: 20px;
+}
+
+p {
+  font-size: 1.2rem;
+  line-height: 1.5;
+  color: #666;
+  text-align: center;
+  max-width: 600px;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 20px 0;
+}
+
+li {
+  font-size: 1.1rem;
+  margin-bottom: 10px;
 }
 
 .button {

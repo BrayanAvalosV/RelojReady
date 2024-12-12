@@ -6,7 +6,7 @@ import json
 import requests
 
 # Definir las rutas donde se almacenan los archivos
-UPLOAD_FOLDER_RELOJ = 'uploads/reloj'
+LAST_UPLOAD_FOLDER_RELOJ = 'uploads/ultimo_reloj'
 UPLOAD_FOLDER_HORARIO1 = 'uploads/horario1'
 UPLOAD_FOLDER_HORARIO2 = 'uploads/horario2'
 
@@ -116,14 +116,14 @@ def obtener_df():
             df_cruzado = cargar_datos_asignados(resultado_horarios, archivo_asignado)
 
             # Cargar y cruzar el archivo reloj
-            archivo_reloj = obtener_archivo_reciente(UPLOAD_FOLDER_RELOJ, '.log')  # Cambiado a .log
+            archivo_reloj = obtener_archivo_reciente(LAST_UPLOAD_FOLDER_RELOJ, '.log')  # Cambiado a .log
             if archivo_reloj:
                 df_final = cargar_datos_reloj(df_cruzado, archivo_reloj)
                 df_final['Modificacion'] = 0  
                 df_final['Estado'] = 'Vivo'
                 documents = df_final.to_dict(orient='records')
                 collection.insert_many(documents)
-                response = requests.get('http://localhost:5000/process_data')
+                #response = requests.get('http://localhost:5000/process_data')
                 return
             else:
                 print("No se encontró ningún archivo de reloj.")

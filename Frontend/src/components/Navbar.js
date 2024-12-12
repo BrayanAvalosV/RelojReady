@@ -68,13 +68,11 @@ const Navbar = () => {
     return (
         <nav className="navbar navbar-expand-lg navbar-light bg-light">
             <div className="container">
-            <Link className="navbar-brand" to="/">
                     <img 
                         src="https://www.sscoquimbo.cl/gob-cl/images/logo_digital.png" 
                         alt="Logotipo" 
-                        style={{ height: '40px' }} // Ajusta el tamaño del logotipo
-                    />
-            </Link>        
+                        style={{ height: '50px' }} // Ajusta el tamaño del logotipo
+                    />      
                 <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span className="navbar-toggler-icon"></span>
                 </button>
