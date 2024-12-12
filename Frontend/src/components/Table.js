@@ -5,7 +5,8 @@ import 'ag-grid-community/styles/ag-theme-alpine.css';
 
 const DataTable = ({ filteredData, columnDefs, onCellValueChanged }) => {
     return (
-        <div className="ag-theme-alpine" style={{ height: '400px', width: '100%' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+        <div className="ag-theme-alpine" style={{ height: '550px', width: '98%' }}>
             <AgGridReact
                 rowData={filteredData}
                 columnDefs={columnDefs}
@@ -25,8 +26,9 @@ const DataTable = ({ filteredData, columnDefs, onCellValueChanged }) => {
                 }}
                 onCellValueChanged={onCellValueChanged}
                 pagination={true}
-                paginationPageSize={10}
+                paginationPageSize={20}
             />
+        </div>
         </div>
     );
 };

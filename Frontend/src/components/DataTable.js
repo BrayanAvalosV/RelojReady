@@ -76,46 +76,54 @@ const DataTable = () => {
         }
     };
 
-    // CRITERIOS CASOS DE ERROR
     const processErrors = (data) => {
         return data.map((row, index, array) => {
-            let error = '';
-            
-            if(row['Día'] === 'NO REGISTRADO'){
+            let error = ''; // Inicializamos el error
+    
+            // Prioridad de errores:
+            // 1. No registrado
+            // 2. Omisión de marcaje
+            // 3. Marcaje múltiple
+            // 4. Ajuste Entrada/Salida
+            // 5. Posible error 
+    
+            // 1. Error: No registrado
+            if (row['Día'] === 'NO REGISTRADO') {
                 error = 'Sin registros';
             }
     
-            // Error 1: Omisión de marcaje
+            // 2. Error: Omisión de marcaje
             if (
+                error === '' && // Verifica que no se haya asignado un error aún
                 row['entrada/salida'] === 3 &&
                 row['hora_reloj'] === '00:00' &&
-                row['Hora Salida'] !== '00:00' && 
-                error === ''
+                row['Hora Salida'] !== '00:00' &&
+                row['Día'] !== 'NO REGISTRADO' // Verifica que el Día no sea "NO REGISTRADO"
             ) {
                 error = 'Omisión de Marcaje';
             }
     
-            // Error 2: Marcaje múltiple
-            if (index > 0 && error === '') { // Solo procesar si aún no hay error asignado
+            // 3. Error: Marcaje múltiple
+            if (error === '' && index > 0) { // Solo procesar si aún no hay error asignado
                 const varMinutos = Number(localStorage.getItem('varMinutos') || 0);
                 for (let i = 0; i < index; i++) {
                     const prevRow = array[i];
                     const camposAComparar = ['Día', 'RUT', 'entrada/salida', 'fecha_reloj'];
-                    
+    
                     const todosCamposIguales = camposAComparar.every(campo => row[campo] === prevRow[campo]);
-            
+    
                     if (todosCamposIguales) {
                         const horaRelojActual = row['hora_reloj'];
                         const horaRelojAnterior = prevRow['hora_reloj'];
-            
+    
                         const [horaActualHoras, horaActualMinutos] = horaRelojActual.split(':').map(Number);
                         const [horaAnteriorHoras, horaAnteriorMinutos] = horaRelojAnterior.split(':').map(Number);
-            
+    
                         const fechaActual = new Date(0, 0, 0, horaActualHoras, horaActualMinutos);
                         const fechaAnterior = new Date(0, 0, 0, horaAnteriorHoras, horaAnteriorMinutos);
     
                         const diferenciaMinutos = Math.abs((fechaActual - fechaAnterior) / 60000);
-            
+    
                         if (diferenciaMinutos <= varMinutos) {
                             error = 'Marcaje múltiple';
                             break; // Terminar la búsqueda, ya que se encontró un error
@@ -124,8 +132,8 @@ const DataTable = () => {
                 }
             }
     
-            // Error 3: Inversión de entrada/salida
-            if (index > 0 && error === '') { // Solo procesar si aún no hay error asignado
+            // 4. Error: Ajuste Entrada/Salida
+            if (error === '' && index > 0) { // Solo procesar si aún no hay error asignado
                 const filaActual = array[index];
                 const rutActual = filaActual['RUT'];
     
@@ -150,29 +158,33 @@ const DataTable = () => {
                         horaEsperada = new Date(`1970-01-01T${filaActual['Hora Entrada']}:00`);
                     }
     
-                    const diferenciaHoras = Math.abs((horaActual - horaEsperada) / (1000 * 60 * 60));
+                    if (horaEsperada) {
+                        const diferenciaHoras = Math.abs((horaActual - horaEsperada) / (1000 * 60 * 60));
     
-                    if ((esEntradaActual && esEntradaPrev) || (esSalidaActual && esSalidaPrev)) {
-                        error = 'Posible error'; //
-                        if (diferenciaHoras <= varHoras) {
-                            error = 'Ajustar Entrada/Salida'; // Detectar error de inversión de entrada/salida
+                        if ((esEntradaActual && esEntradaPrev) || (esSalidaActual && esSalidaPrev)) {
+                            error = 'Posible error'; 
+                            if (diferenciaHoras <= varHoras) {
+                                error = 'Ajustar Entrada/Salida'; // Detectar error de inversión de entrada/salida
+                            }
                         }
                     }
                 }
             }
     
+            // Retorna la fila con el error asignado
             return { ...row, 'Error encontrado': error };
         });
     };
+    
 
     const columnDefs = [
         { headerName: 'Día', field: 'Día', flex: 1 },
-        { headerName: 'RUT', field: 'RUT', editable: true, flex: 1 },
-        { headerName: 'Entrada/Salida', field: 'entrada/salida', editable: true, flex: 1 },
+        { headerName: 'RUT', field: 'RUT', flex: 1 },
+        { headerName: 'Entrada/Salida', field: 'entrada/salida', flex: 1 },
         { headerName: 'Fecha reloj', field: 'fecha_reloj', flex: 1 },
-        { headerName: 'Hora reloj', field: 'hora_reloj', editable: true, flex: 1 },
+        { headerName: 'Hora reloj', field: 'hora_reloj', flex: 1 },
         { headerName: 'Entrada Horario', field: 'Hora Entrada', flex: 1 },
-        { headerName: 'Salida Horario', field: 'Hora Salida', editable: true, flex: 1 },
+        { headerName: 'Salida Horario', field: 'Hora Salida', flex: 1 },
         { headerName: 'Error encontrado', field: 'Error encontrado', flex: 1 },
     ];
 
@@ -196,7 +208,7 @@ const DataTable = () => {
     };
     
     const handleIncorrectEntryExit = () => {
-        const affectedRows = rowData.filter((row) => row['Error encontrado'] === '3');
+        const affectedRows = rowData.filter((row) => row['Error encontrado'] === 'Ajustar Entrada/Salida');
         setRowsToEdit(affectedRows);
         setActiveAction('ajuste');
         setIsModalOpen(true);
@@ -265,6 +277,37 @@ const DataTable = () => {
             .catch(error => {
                 console.error('Error al eliminar:', error);
             });
+        }else if (activeAction === 'ajuste') {
+            fetch('http://localhost:5000/adjust-entrada-salida', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    config: {
+                        varHoras: varHoras
+                    },
+                    rows: rowsToEdit.map(row => ({
+                        RUT: row['RUT'],
+                        fecha_reloj: row['fecha_reloj'],
+                        entradaSalida: row['entrada/salida'],
+                        hora_reloj: row['hora_reloj']
+                    }))
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Ajuste de Entrada/Salida confirmado:', data);
+                setIsModalOpen(false);
+                fetch('http://localhost:5000/get-records')
+                    .then(response => response.json())
+                    .then(data => {
+                        const processedData = processErrors(data);
+                        setRowData(processedData);
+                    })
+                    .catch(error => console.error('Error fetching data:', error));
+            })
+            .catch(error => {
+                console.error('Error al ajustar Entrada/Salida:', error);
+            });
         }
     };
     
@@ -275,7 +318,7 @@ const DataTable = () => {
                 <button
                     onClick={toggleModal}
                     className="button-style"
-                    style={{ display: 'flex', alignItems: 'center', padding: '10px', border: 'none', borderRadius: '5px', cursor: 'pointer',marginTop:'35px' }}
+                    style={{ display: 'flex', alignItems: 'center', padding: '10px', border: 'none', borderRadius: '5px', cursor: 'pointer',marginTop:'60px' }}
                 >
                     <i className="fa fa-cog" style={{ fontSize: '16px', marginRight: '8px' }}></i>
                     Configuración
@@ -332,26 +375,6 @@ const DataTable = () => {
                 handleFilterChange={handleFilterChange}
                 selectedFilter={selectedFilter}
             />
-
-            <button
-        onClick={() => setIsDateRangeModalOpen(true)}
-        style={{
-            padding: '10px 20px',
-            backgroundColor: '#007bff',
-            color: 'white',
-            border: 'none',
-            borderRadius: '5px',
-            minWidth: '100px',
-            cursor: 'pointer',
-        }}
-    >
-        Exportar
-    </button>
-    {/* Modal de selección de fechas */}
-        <DateRangeModal
-            isOpen={isDateRangeModalOpen}
-            onRequestClose={() => setIsDateRangeModalOpen(false)}
-        />
     
             {/* Tabla */}
             <Table

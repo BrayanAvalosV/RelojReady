@@ -61,12 +61,12 @@ const HorarioUploadComponent = () => {
                 <div className="upload-area" {...getRootPropsHorario1()} style={{ width: '45%' }}>
                     <input {...getInputPropsHorario1()} />
                     <img src={`${process.env.PUBLIC_URL}/file-icon.png`} alt="File icon" />
-                    {horario1 ? <p>Archivo horario 1 seleccionado: {horario1.name}</p> : <p>Arrastra y suelta el archivo horarios asignados aquí, o haz clic para seleccionar uno</p>}
+                    {horario1 ? <p>Archivo horario 1 seleccionado: {horario1.name}</p> : <p>Arrastra y suelta el archivo horarios Creados aquí, o haz clic para seleccionar uno</p>}
                 </div>
                 <div className="upload-area" {...getRootPropsHorario2()} style={{ width: '45%' }}>
                     <input {...getInputPropsHorario2()} />
                     <img src={`${process.env.PUBLIC_URL}/file-icon.png`} alt="File icon" />
-                    {horario2 ? <p>Archivo horario 2 seleccionado: {horario2.name}</p> : <p>Arrastra y suelta el archivo horarios creados aquí, o haz clic para seleccionar uno</p>}
+                    {horario2 ? <p>Archivo horario 2 seleccionado: {horario2.name}</p> : <p>Arrastra y suelta el archivo horarios Asignados aquí, o haz clic para seleccionar uno</p>}
                 </div>
             </div>
             {message && <p>{message}</p>}

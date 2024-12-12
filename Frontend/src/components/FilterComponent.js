@@ -1,6 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
+import DateRangeModal from '../components/DateRangeModal';
+
 
 const FilterComponent = ({ handleFilter, handleFilterChange, selectedFilter }) => {
+    const [isDateRangeModalOpen, setIsDateRangeModalOpen] = useState(false);
     const containerStyle = {
         display: 'flex',
         alignItems: 'center',
@@ -58,10 +61,12 @@ const FilterComponent = ({ handleFilter, handleFilterChange, selectedFilter }) =
                     <option value="NO REGISTRADO">No registrado</option>
                 </select>
             </div>
+            
             <button
+            onClick={() => setIsDateRangeModalOpen(true)}
         style={{
             padding: '10px 20px',
-            backgroundColor: '#007bff',
+            backgroundColor: '#6c757d',
             color: 'white',
             border: 'none',
             borderRadius: '5px',
@@ -71,10 +76,16 @@ const FilterComponent = ({ handleFilter, handleFilterChange, selectedFilter }) =
     >
         Exportar
     </button>
+    {/* Modal de selección de fechas */}
+    <DateRangeModal
+                isOpen={isDateRangeModalOpen}
+                onRequestClose={() => setIsDateRangeModalOpen(false)}
+            />
+  
     <button
         style={{
             padding: '10px 20px',
-            backgroundColor: '#007bff',
+            backgroundColor: '#6c757d',
             color: 'white',
             border: 'none',
             borderRadius: '5px',
