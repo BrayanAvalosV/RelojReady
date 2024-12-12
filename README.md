@@ -5,7 +5,7 @@ Esta aplicación es una arquitectura de microservicios que utiliza React para el
 
 ## Tecnologías Utilizadas:
 
-- *Frontend:* React + Nginx.
+- *Frontend:* React.js
 - *Backend:* Flask (Python).
 - *Base de Datos:* PostgreSQL y MongoDB.
 - *Orquestación:* Docker y Docker Compose.
@@ -58,7 +58,6 @@ docker-compose up --build
 │
 ├── /frontend        # Código fuente del frontend (React)
 │   ├── Dockerfile
-│   ├── nginx.conf
 │   ├── package.json
 │   └── src/
 │
