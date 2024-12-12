@@ -1,0 +1,88 @@
+.home-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: #f0f0f0;
+  padding: 40px; 
+}
+
+.button-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px; 
+}
+h1 {
+  font-size: 4rem; /* Aumentado el tamaño */
+  font-weight: bold;
+  color: #333;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2); /* Agrega una sombra suave */
+  margin-bottom: 20px;
+}
+p {
+  font-size: 1.2rem;
+  line-height: 1.5;
+  color: #666;
+  text-align: center;
+  max-width: 600px;
+}
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 20px 0;
+}
+li {
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+}
+.button {
+  padding: 10px 20px;
+  font-size: 18px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.button:hover {
+  background-color: #0056b3;
+}
+
+.upload-container {
+  text-align: center;
+  padding: 50px;
+}
+
+.upload-area {
+  border: 2px dashed #007bff;
+  border-radius: 5px;
+  padding: 20px;
+  margin: 20px auto;
+  width: 300px; 
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.file-icon {
+  width: 50px; 
+  margin-top: 10px;
+}
+
+button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
