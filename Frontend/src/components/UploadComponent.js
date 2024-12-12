@@ -91,12 +91,6 @@ const UploadComponent = () => {
             >
                 {isProcessing ? 'Procesando...' : 'Confirmar subida'}
             </button>
-            <button
-                onClick={() => window.location.href = '/'}
-                style={{ marginTop: '20px', display: 'block', margin: '20px auto' }}
-            >
-                Regresar al Home
-            </button>
         </div>
     );
 };

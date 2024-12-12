@@ -5,23 +5,17 @@ import { useNavigate } from 'react-router-dom';
 
 const Home = ({ setCurrentPage }) => {
     const navigate = useNavigate();
-    const handleCargaReloj = () => {
-        navigate('/carga-reloj');
-    };
-
-    const handleCargaHorario = () => {
-        navigate('/carga-horario');
-    };
 
     return (
         <div className="home-container">
-            <h1>Bienvenido a la Aplicación</h1>
-            <div className="button-container">
-                <button className="button" onClick={handleCargaReloj}>Carga Reloj</button>
-                <button className="button" onClick={handleCargaHorario}>Carga Horario</button>
-                <button className="button" onClick={() => {/* botón no funcional */}}>Menú</button>
-                <button className="button" onClick={() => {/* botón no funcional */}}>Otro</button>
-            </div>
+            <h1>Bienvenido a la aplicación RelojReady</h1> 
+           <p>RelojReady es una herramienta intuitiva que te permitirá:</p> 
+        <ul>
+            <li>Cargar archivos de asistencia y horarios de forma rápida y sencilla.</li>
+            <li>Visualizar los registos de asistencia de manera legible.</li>
+            <li>Realizar modificaciones basadas en reglas sobre el archivo original.</li>
+            <li>Generar un archivo limpio y listo para subir al ERP SIRH.</li>
+        </ul>
         </div>
     );
 };

@@ -30,6 +30,7 @@ const ConfigModal = ({
         setter(value);
         localStorage.setItem(key, value); // Guarda el valor en localStorage
     };
+    
 
     return (
         <Modal
