@@ -566,8 +566,9 @@ def load_routes(app,db):
     # Ruta para obtener registros vivos
     @app.route('/get-records', methods=['GET'])
     def get_records():
-        records = list(collection.find({'Estado': {'$in': ['Vivo', 'Modificado']}}, {'_id': 0}))
+        records = list(collection.find({'Estado': {'$in': ['Vivo', 'Modificado']}}))
         return jsonify(records), 200
+    
     @app.route('/get-min-max-dates', methods=['GET'])
     def get_min_max_dates():
         # Obtenemos las fechas de la base de datos, en este caso el campo 'fecha_reloj'
@@ -633,7 +634,7 @@ def load_routes(app,db):
 
             # Filtrar los registros en el rango de fechas
             records = list(collection.find({
-                "Estado": "Vivo",
+                "Estado": { "$in": ["Vivo", "Modificado"] },
                 "fecha_reloj": {
                     "$gte": start_date.strftime("%d/%m/%y"),
                     "$lte": end_date.strftime("%d/%m/%y")
