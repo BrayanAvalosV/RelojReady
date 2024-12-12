@@ -146,6 +146,8 @@ def load_routes(app,db):
                 return jsonify({
                     'message': 'Sesión iniciada exitosamente.',
                     'nombre': usuario.nombre,
+                    'apellido1':usuario.apellido_paterno,
+                    'apellido2': usuario.apellido_materno,
                     'role': usuario.rol
                 }), 200
                 

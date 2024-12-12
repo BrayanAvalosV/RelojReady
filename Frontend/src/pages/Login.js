@@ -25,6 +25,8 @@ const Login = () => {
                 // Almacena información del usuario en localStorage
                 localStorage.setItem('userRole', response.data.role);
                 localStorage.setItem('userName', response.data.nombre);
+                localStorage.setItem('userApPat', response.data.apellido1);
+                localStorage.setItem('userApMat', response.data.apellido2);
                 localStorage.setItem('isAuthenticated', true);
 
                // console.log('Inicio de sesión exitoso');
