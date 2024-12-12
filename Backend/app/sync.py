@@ -123,9 +123,7 @@ def obtener_df():
                 df_final['Estado'] = 'Vivo'
                 documents = df_final.to_dict(orient='records')
                 collection.insert_many(documents)
-                index_name = "indice"
-                if index_name not in [index['name'] for index in collection.list_indexes()]:
-                   collection.create_index([("fecha_reloj", 1), ("hora_reloj", 1), ("RUT", 1)], unique=True)
+
                 #response = requests.get('http://localhost:5000/process_data')
                 return
             else:

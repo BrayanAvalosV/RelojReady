@@ -33,6 +33,26 @@ const FilterComponent = ({ handleFilter, handleFilterChange, selectedFilter }) =
         border: '1px solid #ccc',
         width: '35%',
     };
+    const handleDownloadRutsNoRegistrados = async () => {
+        try {
+            const response = await fetch('http://localhost:5000/ruts-no-registrados', {
+                method: 'GET',
+            });
+
+            if (!response.ok) {
+                throw new Error('Error al descargar el archivo');
+            }
+
+            // Crear un blob con los datos recibidos
+            const blob = await response.blob();
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'ruts_no_registrados.txt'; 
+            link.click();
+        } catch (error) {
+            console.error(error);
+        }
+    };
 
     return (
         <div style={containerStyle}>
@@ -83,6 +103,7 @@ const FilterComponent = ({ handleFilter, handleFilterChange, selectedFilter }) =
             />
   
     <button
+        onClick={handleDownloadRutsNoRegistrados}
         style={{
             padding: '10px 20px',
             backgroundColor: '#6c757d',

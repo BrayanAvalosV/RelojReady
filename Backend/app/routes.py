@@ -401,6 +401,8 @@ def load_routes(app,db):
     @app.route('/adjust-entrada-salida', methods=['POST'])
     def adjust_entrada_salida():
         # Obtener registros que tienen Modificacion: 3 y Estado: 'Vivo'
+        #data = request.json
+        #user = data.get('user')
         registros = list(collection.find({'Modificacion': 3, 'Estado': 'Vivo'}))
         
         print(f"Registros encontrados: {len(registros)}")  # Depuración
@@ -421,7 +423,7 @@ def load_routes(app,db):
                     'Estado Anterior': reg.get('Estado'),
                     'Modificacion': reg.get('Modificacion'),
                     'Fecha Cambio': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),  # Hora actual
-                    'Usuario': 'admin'
+                    'Usuario': "Admin"
                 }
                 
                 # Insertar registro de cambio
@@ -453,12 +455,13 @@ def load_routes(app,db):
         var_minutos = data.get('config', {}).get('varMinutos', 0)
         print(f"varMinutos recibido: {var_minutos}") 
         print("hola")
+        user = data.get('user')
 
         # Convertir varMinutos a segundos para la comparación
         max_difference_seconds = var_minutos * 60  # Convertir minutos a segundos
 
         # Obtener todos los registros con estado 'Vivo' y 'Modificado', ordenados por RUT, entrada/salida, fecha_reloj y hora_reloj
-        registros = list(collection.find({'Estado': {'$in': ['Vivo', 'Modificado']}}).sort([('RUT', 1), ('entrada/salida', 1), ('fecha_reloj', 1), ('hora_reloj', 1)]))
+        registros = list(collection.find({'Estado': {'$in': ['Vivo', 'Modificado']}}))
         
         # Lista para almacenar los duplicados a eliminar
         duplicates_to_delete = []
@@ -494,7 +497,7 @@ def load_routes(app,db):
                         'Estado Anterior': reg.get('Estado'),
                         'Modificacion': reg.get('Modificacion'),
                         'Fecha Cambio': current_time,  # Fecha y hora actual del cambio
-                        'Usuario': 'admin'  # Quién realizó el cambio
+                        'Usuario': user  # Quién realizó el cambio
                     }
                     
                     # Insertamos el registro en la colección 'registro_cambios' para tener un historial
@@ -517,7 +520,9 @@ def load_routes(app,db):
     # Ruta para ajustar horarios
     @app.route('/adjust-time', methods=['POST'])
     def adjust_time():
-        # Obtener registros que tienen Modificacion: 3 y Estado: 'Vivo'
+        # Obtener registros que tienen Modificacion: 3 y Estado: 'Vivo'}
+        #data = request.json
+        #user = data.get('user')
         registros = list(collection.find({'Modificacion': 2, 'Estado': 'Vivo'}))
         
         print(f"Registros encontrados: {len(registros)}")  # Depuración
@@ -539,7 +544,7 @@ def load_routes(app,db):
                         'Estado Anterior': reg.get('Estado'),
                         'Modificacion': reg.get('Modificacion'),
                         'Fecha Cambio': current_time,
-                        'Usuario': 'admin'
+                        'Usuario': "Admin"
                     }
                     
                     # Insertar registro de cambio
@@ -566,8 +571,8 @@ def load_routes(app,db):
     # Ruta para obtener registros vivos
     @app.route('/get-records', methods=['GET'])
     def get_records():
-        records = list(collection.find({'Estado': {'$in': ['Vivo', 'Modificado']}}))
-        return jsonify(records), 200
+            records = list(collection.find({'Estado': {'$in': ['Vivo', 'Modificado']}}, {'_id': 0}))
+            return jsonify(records), 200
     
     @app.route('/get-min-max-dates', methods=['GET'])
     def get_min_max_dates():
@@ -682,3 +687,39 @@ def load_routes(app,db):
     def get_logs():
         logs = list(mdb.registro_cambios.find({}, {'_id': 0}))  # Ajusta el filtro y proyección según tus datos
         return jsonify(logs), 200
+    
+    @app.route('/ruts-no-registrados', methods=['GET'])
+    def obtener_ruts_no_registrados():
+        try:
+            # Buscar RUTs únicos con 'CODIGO HORARIO': 'NO REGISTRADO'
+            pipeline = [
+                {"$match": {"CODIGO HORARIO": "NO REGISTRADO"}},
+                {"$addFields": {"fecha_reloj_date": {"$toDate": "$fecha_reloj"}}},
+                {"$sort": {"RUT": 1, "fecha_reloj_date": -1}},
+                {
+                    "$group": {
+                        "_id": "$RUT",
+                        "codigo_horario_actual": {"$first": "$CODIGO HORARIO"},
+                        "estado_actual": {"$first": "$Estado"}
+                    }
+                },
+                {"$match": {"estado_actual": "Vivo", "codigo_horario_actual": "NO REGISTRADO"}}
+            ]
+            
+            # Ejecutar la consulta en la colección
+            ruts_unicos = list(mdb.registros.aggregate(pipeline))
+
+            # Crear el encabezado del archivo
+            header = "Este archivo contiene los RUTs que no tienen un Horario Asignado según los archivos de Horarios Creados y Asignados.\n\n"
+            
+            # Crear el contenido del archivo .txt con los RUTs
+            txt_content = header + "\n".join([rut["_id"] for rut in ruts_unicos])
+
+            # Crear una respuesta con el archivo .txt
+            return Response(
+                txt_content,
+                mimetype='text/plain',
+                headers={"Content-Disposition": "attachment;filename=ruts_no_registrados.txt"}
+            )
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500

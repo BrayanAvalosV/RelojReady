@@ -221,7 +221,9 @@ const DataTable = () => {
             fetch('http://localhost:5000/adjust-time', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(rowsToEdit.map(row => ({
+                body: JSON.stringify(rowsToEdit.map(row => (
+                    {
+                    user: localStorage.getItem('userName'),
                     RUT: row['RUT'],
                     newDay: row.newDay || row['Día'],
                    //config: { varMinutos, varHoras }
@@ -251,6 +253,7 @@ const DataTable = () => {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
+                    user: localStorage.getItem('userName'),
                     config: {
                         varMinutos: varMinutos  // Aquí pasas el valor de varMinutos directamente dentro de config
                     },
@@ -282,6 +285,7 @@ const DataTable = () => {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
+                    user: localStorage.getItem('userName'),
                     config: {
                         varHoras: varHoras
                     },
