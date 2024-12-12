@@ -309,50 +309,80 @@ def load_routes(app,db):
         registros = list(collection.find())
         updates = []
 
-        for reg in registros:
-            modificacion = 0
+        for index, fila_actual in enumerate(registros):
+            modificacion = 0  # Inicializamos el estado de modificación para cada fila
             duplicado = False
 
-            if all(key in reg for key in ['RUT', 'entrada/salida', 'hora_reloj', 'fecha_reloj']):
-                # Busca posibles duplicados
+            # Verificar si la fila contiene las claves necesarias
+            if all(key in fila_actual for key in ['RUT', 'entrada/salida', 'hora_reloj', 'fecha_reloj']):
+                # Modificación 2: Duplicados
                 for other_reg in registros:
                     if (
-                        reg != other_reg and
+                        fila_actual != other_reg and
                         all(key in other_reg for key in ['RUT', 'entrada/salida', 'hora_reloj', 'fecha_reloj']) and
-                        reg['RUT'] == other_reg['RUT'] and
-                        reg['entrada/salida'] == other_reg['entrada/salida']
+                        fila_actual['RUT'] == other_reg['RUT'] and
+                        fila_actual['entrada/salida'] == other_reg['entrada/salida']
                     ):
                         diferencia = abs(
-                            (datetime.strptime(reg['hora_reloj'], "%H:%M") -
+                            (datetime.strptime(fila_actual['hora_reloj'], "%H:%M") -
                             datetime.strptime(other_reg['hora_reloj'], "%H:%M")).total_seconds()
                         )
-                        if diferencia <= 180 and reg['fecha_reloj'] == other_reg['fecha_reloj']:
+                        if diferencia <= 180 and fila_actual['fecha_reloj'] == other_reg['fecha_reloj']:
                             duplicado = True
-                            print(f"Duplicado detectado: {reg['_id']} y {other_reg['_id']}")
+                            print(f"Duplicado detectado: {fila_actual['_id']} y {other_reg['_id']}")
                             break
 
                 # Marca como duplicado
                 if duplicado:
                     modificacion = 1
 
-                # Marca si `hora_reloj` es "00:00"
-                if reg['hora_reloj'] == "00:00":
-                    modificacion = 2 
+                if (fila_actual['hora_reloj'] == "00:00" and 
+                    fila_actual['Día'] != "NO REGISTRADO" and
+                    fila_actual['Hora Salida'] != "00:00" and
+                    fila_actual['entrada/salida'] != ''):
+                    modificacion = 2
+
+                # Modificación 3: Ajuste de entrada/salida
+                filas_previas = [
+                    reg for reg in registros[:index] if reg['RUT'] == fila_actual['RUT']
+                ]
+                if filas_previas:
+                    ultima_fila_prev = filas_previas[-1]
+
+                    es_entrada_actual = fila_actual['entrada/salida'] == 1
+                    es_salida_actual = fila_actual['entrada/salida'] == 3
+
+                    es_entrada_prev = ultima_fila_prev['entrada/salida'] == 1
+                    es_salida_prev = ultima_fila_prev['entrada/salida'] == 3
+
+                    hora_actual = datetime.strptime(fila_actual['hora_reloj'], "%H:%M")
+                    hora_esperada = None
+
+                    if es_entrada_actual:
+                        hora_esperada = datetime.strptime(ultima_fila_prev.get('Hora Salida', "00:00"), "%H:%M")
+                    elif es_salida_actual:
+                        hora_esperada = datetime.strptime(ultima_fila_prev.get('Hora Entrada', "00:00"), "%H:%M")
+
+                    if hora_esperada:
+                        diferencia_horas = abs((hora_actual - hora_esperada).total_seconds() / 3600)
+
+                        if ((es_entrada_actual and es_entrada_prev) or (es_salida_actual and es_salida_prev)) and diferencia_horas <= 2:
+                            modificacion = 3
 
             # Añade el estado si no existe
-            if 'Estado' not in reg:
-                reg['Estado'] = 'Vivo'
+            if 'Estado' not in fila_actual:
+                fila_actual['Estado'] = 'Vivo'
 
             # Solo actualiza si se requiere una modificación
             if modificacion > 0:
-                reg['Modificacion'] = modificacion
-                updates.append(reg)
+                fila_actual['Modificacion'] = modificacion
+                updates.append(fila_actual)
 
                 # Debug para verificar el proceso de actualización
-                print(f"Registro actualizado: {reg['_id']} -> Modificacion: {modificacion}")
+                print(f"Registro actualizado: {fila_actual['_id']} -> Modificacion: {modificacion}")
 
                 # Actualiza el registro en la base de datos
-                collection.update_one({'_id': reg['_id']}, {'$set': {'Modificacion': modificacion}})
+                collection.update_one({'_id': fila_actual['_id']}, {'$set': {'Modificacion': modificacion}})
 
         # Convierte los registros con ObjectId a una versión serializable
         def convert_objectid(obj):
@@ -367,6 +397,53 @@ def load_routes(app,db):
 
         # Devuelve la respuesta con los registros actualizados
         return jsonify({'message': 'Datos procesados', 'updates': [convert_objectid(reg) for reg in updates]}), 200
+
+    @app.route('/adjust-entrada-salida', methods=['POST'])
+    def adjust_entrada_salida():
+        # Obtener registros que tienen Modificacion: 3 y Estado: 'Vivo'
+        registros = list(collection.find({'Modificacion': 3, 'Estado': 'Vivo'}))
+        
+        print(f"Registros encontrados: {len(registros)}")  # Depuración
+
+        for reg in registros:
+            # Cambio de entrada/salida
+            if reg.get('entrada/salida') in [1, 3]:
+                new_entrada_salida = 3 if reg['entrada/salida'] == 1 else 1
+                
+                # Registro de cambio
+                change_record = {
+                    'RUT': reg.get('RUT'),
+                    'entrada/salida': reg.get('entrada/salida'),
+                    'Hora Entrada': reg.get('Hora Entrada'),
+                    'Hora Salida': reg.get('Hora Salida'),
+                    'hora_reloj': reg.get('hora_reloj'),
+                    'fecha_reloj': reg.get('fecha_reloj'),
+                    'Estado Anterior': reg.get('Estado'),
+                    'Modificacion': reg.get('Modificacion'),
+                    'Fecha Cambio': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),  # Hora actual
+                    'Usuario': 'admin'
+                }
+                
+                # Insertar registro de cambio
+                try:
+                    mdb.registro_cambios.insert_one(change_record)
+                    print(f"Registro de cambio insertado para {reg['_id']}")
+                except Exception as e:
+                    print(f"Error al insertar en registro_cambios: {e}")
+
+                # Actualizar documento
+                collection.update_one(
+                    {'_id': reg['_id']}, 
+                    {
+                        '$set': {
+                            'entrada/salida': new_entrada_salida,
+                            'Estado': 'Modificado'
+                        }
+                    }
+                )
+                print(f"Documento {reg['_id']} actualizado.")
+
+        return jsonify({'message': f'{len(registros)} registros actualizados'}), 200
     
      # Ruta para borrar duplicados
     @app.route('/delete-duplicates', methods=['POST'])

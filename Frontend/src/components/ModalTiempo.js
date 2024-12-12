@@ -43,7 +43,7 @@ const ConfigModal = ({
                     padding: '20px',
                     borderRadius: '8px',
                     border: '1px solid #ccc',
-                    height: '400px',
+                    height: '300px',
                 }
             }}
         >
@@ -63,7 +63,7 @@ const ConfigModal = ({
                 ✖
             </button>
 
-            <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>Configurar Valores</h2>
+            <h2 style={{ textAlign: 'center', marginBottom: '20px',fontSize: '25px' }}>Configurar Valores</h2>
             <form
                 onSubmit={(e) => {
                     e.preventDefault();
