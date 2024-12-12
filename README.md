@@ -1,5 +1,5 @@
 
-# Proyecto de Aplicación Web con React, Flask y PostgreSQL
+# Proyecto de Aplicación Web RelojReady con React, Flask, PostgreSQL y MongoDB
 ## Descripción
 Esta aplicación es una arquitectura de microservicios que utiliza React para el frontend, Flask para el backend y PostgreSQL como base de datos para la gestión de usuarios y MongoDB para almacenar datos correspondientes a los registros de cambios en los archivos. La aplicación está diseñada para ser desplegada de manera dockerizada, permitiendo fácil despliegue y administración.
 
